@@ -12,7 +12,7 @@ const WIDTH: usize = 640;
 const HEIGHT: usize = 360;
 
 fn main() {
-    let buffer: Vec<u32> = {
+    let buffer = {
         let scene = Scene {
             objects: vec![
                 Box::new(Sphere::new(
@@ -58,7 +58,20 @@ fn main() {
         panic!("{}", e);
     });
 
-    window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+    let packed_buffer = buffer
+        .iter()
+        .map(|color| {
+            let r = (color.0[0].clamp(0.0, 1.0) * 255.0) as u32;
+            let g = (color.0[1].clamp(0.0, 1.0) * 255.0) as u32;
+            let b = (color.0[2].clamp(0.0, 1.0) * 255.0) as u32;
+
+            (r << 16) | (g << 8) | b
+        })
+        .collect::<Vec<u32>>();
+
+    window
+        .update_with_buffer(&packed_buffer, WIDTH, HEIGHT)
+        .unwrap();
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
