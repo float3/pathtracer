@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub};
 
 use num_traits::Float;
 
@@ -14,8 +14,6 @@ where
         + Sub<Output = T>
         + Mul<Output = T>
         + MulAssign<T>
-        + Div<Output = T>
-        + DivAssign<T>
         + Default
         + From<T>
         + Into<T>
@@ -39,16 +37,16 @@ where
     pub fn normalize(&self) -> Self {
         let len: T = self.length();
         let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = self.0[i] / len;
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] / len;
         }
         Vector(result)
     }
 
     pub fn scale(&self, scalar: T) -> Self {
         let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = self.0[i] * scalar;
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] * scalar;
         }
         Vector(result)
     }
@@ -86,8 +84,8 @@ where
 
     fn add(self, other: Self) -> Self::Output {
         let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = self.0[i] + other.0[i];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] + other.0[i];
         }
         Vector(result)
     }
@@ -98,8 +96,8 @@ where
     T: Add<Output = T> + Copy + Default + Float,
 {
     fn add_assign(&mut self, other: Self) {
-        for i in 0..N {
-            self.0[i] = self.0[i] + other.0[i];
+        for (i, item) in self.0.iter_mut().enumerate().take(N) {
+            *item = *item + other.0[i];
         }
     }
 }
@@ -112,8 +110,8 @@ where
 
     fn neg(self) -> Self::Output {
         let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = -self.0[i];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = -self.0[i];
         }
         Vector(result)
     }
@@ -127,8 +125,8 @@ where
 
     fn sub(self, other: Self) -> Self::Output {
         let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = self.0[i] - other.0[i];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] - other.0[i];
         }
         Vector(result)
     }
@@ -142,8 +140,8 @@ where
 
     fn mul(self, other: Self) -> Self::Output {
         let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = self.0[i] * other.0[i];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] * other.0[i];
         }
         Vector(result)
     }
@@ -156,32 +154,6 @@ where
     fn mul_assign(&mut self, other: Self) {
         for i in 0..N {
             self.0[i] = self.0[i] * other.0[i];
-        }
-    }
-}
-
-impl<T, const N: usize> Div<T> for Vector<T, N>
-where
-    T: Div<Output = T> + Copy + Default + Float,
-{
-    type Output = Self;
-
-    fn div(self, scalar: T) -> Self::Output {
-        let mut result = [T::default(); N];
-        for i in 0..N {
-            result[i] = self.0[i] / scalar;
-        }
-        Vector(result)
-    }
-}
-
-impl<T, const N: usize> DivAssign<T> for Vector<T, N>
-where
-    T: Div<Output = T> + Copy + Default + Float,
-{
-    fn div_assign(&mut self, scalar: T) {
-        for i in 0..N {
-            self.0[i] = self.0[i] / scalar;
         }
     }
 }
@@ -236,5 +208,116 @@ impl<T> Vec4<T> {
 
     pub fn w(&self) -> &T {
         &self.0[3]
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use float_cmp::approx_eq;
+
+    #[test]
+    fn test_new() {
+        let v = Vector::new([1.0, 2.0, 3.0]);
+        assert_eq!(v.0, [1.0, 2.0, 3.0]);
+    }
+
+    #[test]
+    fn test_dot() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        assert_eq!(v1.dot(&v2), 32.0);
+    }
+
+    #[test]
+    fn test_length() {
+        let v = Vector::new([1.0, 2.0, 2.0]);
+        assert_eq!(v.length(), 3.0);
+    }
+
+    #[test]
+    fn test_normalize() {
+        let v = Vector::new([1.0, 2.0, 2.0]);
+        let normalized = v.normalize();
+        assert!(approx_eq!(
+            f64,
+            normalized.length(),
+            1.0,
+            epsilon = Float::epsilon(),
+            ulps = 2
+        ));
+    }
+
+    #[test]
+    fn test_scale() {
+        let v = Vector::new([1.0, 2.0, 3.0]);
+        let scaled = v.scale(2.0);
+        assert_eq!(scaled.0, [2.0, 4.0, 6.0]);
+    }
+
+    #[test]
+    fn test_length_squared() {
+        let v = Vector::new([1.0, 2.0, 2.0]);
+        assert_eq!(v.length_squared(), 9.0);
+    }
+
+    #[test]
+    fn test_near_zero() {
+        let v = Vector::new([1e-9, 1e-9, 1e-9]);
+        assert!(v.near_zero());
+    }
+
+    #[test]
+    fn test_cross() {
+        let v1 = Vector::new([1.0, 0.0, 0.0]);
+        let v2 = Vector::new([0.0, 1.0, 0.0]);
+        let cross = v1.cross(&v2);
+        assert_eq!(cross.0, [0.0, 0.0, 1.0]);
+    }
+
+    #[test]
+    fn test_add() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        let sum = v1 + v2;
+        assert_eq!(sum.0, [5.0, 7.0, 9.0]);
+    }
+
+    #[test]
+    fn test_add_assign() {
+        let mut v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        v1 += v2;
+        assert_eq!(v1.0, [5.0, 7.0, 9.0]);
+    }
+
+    #[test]
+    fn test_neg() {
+        let v = Vector::new([1.0, 2.0, 3.0]);
+        let neg = -v;
+        assert_eq!(neg.0, [-1.0, -2.0, -3.0]);
+    }
+
+    #[test]
+    fn test_sub() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        let diff = v1 - v2;
+        assert_eq!(diff.0, [-3.0, -3.0, -3.0]);
+    }
+
+    #[test]
+    fn test_mul() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        let product = v1 * v2;
+        assert_eq!(product.0, [4.0, 10.0, 18.0]);
+    }
+
+    #[test]
+    fn test_mul_assign() {
+        let mut v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        v1 *= v2;
+        assert_eq!(v1.0, [4.0, 10.0, 18.0]);
     }
 }

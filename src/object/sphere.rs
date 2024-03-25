@@ -39,7 +39,7 @@ impl Hittable for Sphere {
         }
 
         let point = ray.at(root);
-        let outward_normal = (point - self.center) / self.radius;
+        let outward_normal = (point - self.center).scale(1.0 / self.radius);
         let front_face = ray.direction.dot(&outward_normal) < 0.0;
         let normal = if front_face {
             outward_normal
