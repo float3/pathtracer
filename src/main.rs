@@ -57,8 +57,8 @@ async fn main() {
                 ),
             };
 
-            let pathtracer = PathTracer::new(scene, WIDTH, HEIGHT);
-            pathtracer.render()
+            let pathtracer = PathTracer::new(WIDTH, HEIGHT);
+            pathtracer.trace(scene)
         })
         .await
         .unwrap();

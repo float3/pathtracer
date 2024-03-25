@@ -1,4 +1,4 @@
-use crate::{scene::FloatSize, utils::vector::Vec3};
+use crate::{ray::Ray, scene::FloatSize, utils::vector::Vec3};
 
 pub struct Camera {
     position: Vec3<FloatSize>,
@@ -36,10 +36,13 @@ impl Camera {
         }
     }
 
-    pub fn get_ray(&self, x: f32, y: f32) -> Vec3<FloatSize> {
+    pub fn get_ray(&self, x: FloatSize, y: FloatSize) -> Ray {
         let x = (2.0 * x - 1.0) * self.aspect_ratio * (self.fov.to_radians() / 2.0).tan();
         let y = (1.0 - 2.0 * y) * (self.fov.to_radians() / 2.0).tan();
         let direction = self.direction + self.right.scale(x) + self.up.scale(y);
-        direction.normalize()
+        Ray {
+            direction: direction.normalize(),
+            origin: self.position,
+        }
     }
 }
