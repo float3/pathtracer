@@ -7,8 +7,8 @@ use pathtracer::{
     utils::vector::Vec3,
 };
 
-const WIDTH: usize = 640;
-const HEIGHT: usize = 360;
+const WIDTH: usize = 640; //* 2;
+const HEIGHT: usize = 360; // * 2;
 
 fn main() {
     let buffer = {
@@ -39,12 +39,13 @@ fn main() {
             camera: Camera::new(
                 Vec3::new([0.0, 0.5, 3.0]),
                 Vec3::new([0.0, 0.0, -1.0]),
-                Vec3::new([0.0, 1.0, 0.0]),
-                90.0,
-                WIDTH as f32 / HEIGHT as f32,
-                0.1,
-                100.0,
+                // Vec3::new([0.0, 1.0, 0.0]),
+                // 90.0,
+                // WIDTH as f32 / HEIGHT as f32,
+                // 0.1,
+                // 100.0,
             ),
+            skybox: Vec3::new([1.0, 1.0, 1.0]),
         };
 
         let pathtracer = PathTracer::new(WIDTH, HEIGHT);

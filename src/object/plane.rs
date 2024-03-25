@@ -12,7 +12,7 @@ impl Plane {
     pub fn new(point: Vec3<FloatSize>, normal: Vec3<FloatSize>, material: Material) -> Self {
         Plane {
             point,
-            normal,
+            normal: normal.normalize(),
             material,
         }
     }

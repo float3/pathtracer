@@ -42,9 +42,9 @@ impl Hittable for Sphere {
         let outward_normal = (point - self.center).scale(1.0 / self.radius);
         let front_face = ray.direction.dot(&outward_normal) < 0.0;
         let normal = if front_face {
-            outward_normal
+            outward_normal.normalize()
         } else {
-            -outward_normal
+            -outward_normal.normalize()
         };
 
         Some(HitRecord {
