@@ -2,6 +2,7 @@ use crate::object::HitRecord;
 use crate::ray::Ray;
 use crate::scene::{FloatSize, Scene};
 use crate::utils::vector::Vec3;
+use rayon::prelude::*;
 
 pub struct PathTracer {
     width: usize,
@@ -16,13 +17,18 @@ impl PathTracer {
     pub fn trace(&self, scene: &Scene) -> Vec<u32> {
         let mut buffer = vec![Vec3::new([0.0, 0.0, 0.0]); self.width * self.height];
 
-        for y in 0..self.height {
-            for x in 0..self.width {
-                let ray = scene.camera.get_ray(x as FloatSize, y as FloatSize);
-                let color = self.trace_ray(scene, &ray, 10);
-                buffer[y * self.width + x] = color;
-            }
-        }
+        buffer
+            .par_chunks_mut(self.width)
+            .enumerate()
+            .for_each(|(y, row)| {
+                (0..self.width).for_each(|x| {
+                    let ray = scene
+                        .camera
+                        .get_ray(x as f32 / self.width as f32, y as f32 / self.height as f32);
+                    let color = self.trace_ray(scene, &ray, 10);
+                    row[x] = color;
+                });
+            });
 
         let packed_buffer = buffer
             .iter()
