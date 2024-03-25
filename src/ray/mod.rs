@@ -1,5 +1,4 @@
 use crate::{scene::FloatSize, utils::vector::Vec3};
-use num_traits::Float;
 
 pub struct Ray {
     pub origin: Vec3<FloatSize>,

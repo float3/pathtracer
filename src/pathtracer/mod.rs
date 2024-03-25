@@ -1,5 +1,3 @@
-use num_traits::{float, Float};
-
 use crate::object::HitRecord;
 use crate::ray::Ray;
 use crate::scene::{FloatSize, Scene};
@@ -21,8 +19,7 @@ impl PathTracer {
         for y in 0..self.height {
             for x in 0..self.width {
                 let ray = scene.camera.get_ray(x as FloatSize, y as FloatSize);
-
-                let color = self.trace_ray(scene, &ray, 0);
+                let color = self.trace_ray(scene, &ray, 10);
                 buffer[y * self.width + x] = color;
             }
         }
