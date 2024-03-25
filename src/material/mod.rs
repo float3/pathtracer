@@ -13,7 +13,6 @@ impl Material {
     pub(crate) fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray> {
         let scatter_direction = hit_record.normal + Material::random_unit_vector();
 
-        // Handle the case where the scatter direction is very small to avoid degenerate scatter direction
         let scatter_direction = if scatter_direction.near_zero() {
             hit_record.normal
         } else {
