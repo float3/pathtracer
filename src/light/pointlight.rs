@@ -14,7 +14,6 @@ impl PointLight {
 }
 impl Light for PointLight {
     fn illuminate(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
-        // Simple illumination model
-        self.color // Adjust this based on your shading model
+        self.color
     }
 }

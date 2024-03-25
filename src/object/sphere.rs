@@ -20,7 +20,6 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
-        // Simplified ray-sphere intersection logic
         let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b = oc.dot(&ray.direction);
@@ -31,7 +30,6 @@ impl Hittable for Sphere {
         }
         let sqrtd = discriminant.sqrt();
 
-        // Find the nearest root that lies in the acceptable range.
         let mut root = (-half_b - sqrtd) / a;
         if root < t_min || t_max < root {
             root = (-half_b + sqrtd) / a;

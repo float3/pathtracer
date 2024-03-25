@@ -32,15 +32,6 @@ where
             .fold(T::default(), |acc, (&a, &b)| acc + a * b)
     }
 
-    pub fn cross(&self, other: &Self) -> Self {
-        assert_eq!(N, 3);
-        let mut result = [T::default(); N];
-        result[0] = self.0[1] * other.0[2] - self.0[2] * other.0[1];
-        result[1] = self.0[2] * other.0[0] - self.0[0] * other.0[2];
-        result[2] = self.0[0] * other.0[1] - self.0[1] * other.0[0];
-        Vector(result)
-    }
-
     pub fn length(&self) -> T {
         self.dot(self).sqrt()
     }
@@ -70,6 +61,20 @@ where
     pub fn near_zero(&self) -> bool {
         let s: T = num_traits::NumCast::from(1e-8).unwrap();
         self.0.iter().all(|&x| x.abs() < s)
+    }
+}
+
+impl<T> Vector<T, 3>
+where
+    T: Float,
+{
+    pub fn cross(&self, other: &Self) -> Self {
+        let result = [
+            self.0[1] * other.0[2] - self.0[2] * other.0[1],
+            self.0[2] * other.0[0] - self.0[0] * other.0[2],
+            self.0[0] * other.0[1] - self.0[1] * other.0[0],
+        ];
+        Vector(result)
     }
 }
 
