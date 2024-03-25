@@ -11,7 +11,8 @@ pub struct Material {
 
 impl Material {
     pub(crate) fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Ray> {
-        let scatter_direction = hit_record.normal + Material::random_unit_vector();
+        let reflected = Self::reflect(&ray.direction.normalize(), &hit_record.normal);
+        let scatter_direction = reflected + Material::random_unit_vector().scale(self.reflectivity);
 
         let scatter_direction = if scatter_direction.near_zero() {
             hit_record.normal
@@ -22,6 +23,10 @@ impl Material {
             origin: hit_record.point,
             direction: scatter_direction,
         })
+    }
+
+    fn reflect(v: &Vec3<FloatSize>, n: &Vec3<FloatSize>) -> Vec3<FloatSize> {
+        *v - n.scale(2.0 * v.dot(n))
     }
 
     fn random_unit_vector() -> Vec3<FloatSize> {
