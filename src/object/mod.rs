@@ -6,7 +6,7 @@ pub mod sphere;
 pub trait Hittable: Sync {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord>;
 }
-
+#[derive(Debug)]
 pub struct HitRecord<'a> {
     pub point: Vec3<FloatSize>,
     pub normal: Vec3<FloatSize>,

@@ -1,6 +1,6 @@
 use crate::{scene::FloatSize, utils::vector::Vec3};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ray {
     pub origin: Vec3<FloatSize>,
     pub direction: Vec3<FloatSize>,

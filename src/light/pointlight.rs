@@ -14,6 +14,8 @@ impl PointLight {
 }
 impl Light for PointLight {
     fn illuminate(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
+        // check if in shadow
+
         self.color
     }
 }
