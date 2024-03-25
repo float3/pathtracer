@@ -1,6 +1,4 @@
-use crate::object::HitRecord;
-use crate::ray::Ray;
-use crate::scene::{FloatSize, Scene};
+use crate::scene::Scene;
 use crate::utils::vector::Vec3;
 use rayon::prelude::*;
 
@@ -25,7 +23,7 @@ impl PathTracer {
                     let ray = scene
                         .camera
                         .get_ray(x as f32 / self.width as f32, y as f32 / self.height as f32);
-                    let color = self.trace_ray(scene, &ray, 10);
+                    let color = scene.trace_ray(&ray, 10);
                     row[x] = color;
                 });
             });
@@ -42,29 +40,5 @@ impl PathTracer {
             .collect::<Vec<u32>>();
 
         packed_buffer
-    }
-
-    fn trace_ray(&self, scene: &Scene, ray: &Ray, depth: u32) -> Vec3<FloatSize> {
-        if depth == 0 {
-            return Vec3::new([0.0, 0.0, 0.0]);
-        }
-
-        if let Some(hit_record) = scene.hit(&ray, 0.001) {
-            let color: Vec3<FloatSize> = scene.illuminate(&hit_record);
-
-            let scattered = self.scatter(&ray, &hit_record);
-
-            if let Some(scattered) = scattered {
-                return color * self.trace_ray(scene, &scattered, depth - 1);
-            }
-
-            color
-        } else {
-            Vec3::new([0.0, 0.0, 0.0])
-        }
-    }
-
-    fn scatter(&self, ray: &&Ray, hit_record: &HitRecord) -> Option<Ray> {
-        hit_record.material.scatter(ray, hit_record)
     }
 }

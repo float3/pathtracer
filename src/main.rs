@@ -12,19 +12,6 @@ const WIDTH: usize = 640;
 const HEIGHT: usize = 360;
 
 fn main() {
-    let mut window = Window::new(
-        "Test Window",
-        WIDTH,
-        HEIGHT,
-        WindowOptions {
-            scale: Scale::X2,
-            ..WindowOptions::default()
-        },
-    )
-    .unwrap_or_else(|e| {
-        panic!("{}", e);
-    });
-
     let buffer: Vec<u32> = {
         let scene = Scene {
             objects: vec![
@@ -57,7 +44,23 @@ fn main() {
         let pathtracer = PathTracer::new(WIDTH, HEIGHT);
         pathtracer.trace(&scene)
     };
+
+    let mut window = Window::new(
+        "Test Window",
+        WIDTH,
+        HEIGHT,
+        WindowOptions {
+            scale: Scale::X2,
+            ..WindowOptions::default()
+        },
+    )
+    .unwrap_or_else(|e| {
+        panic!("{}", e);
+    });
+
+    window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+        // window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }
 }

@@ -33,4 +33,29 @@ impl Scene {
         }
         hit_record
     }
+
+    pub fn trace_ray(&self, ray: &Ray, depth: u32) -> Vec3<FloatSize> {
+        println!("Tracing ray: {:?}", ray);
+        if depth == 0 {
+            return Vec3::new([0.0, 0.0, 0.0]);
+        }
+
+        if let Some(hit_record) = self.hit(&ray, 0.001) {
+            let color: Vec3<FloatSize> = self.illuminate(&hit_record);
+
+            let scattered = self.scatter(&ray, &hit_record);
+
+            if let Some(scattered) = scattered {
+                return color * self.trace_ray(&scattered, depth - 1);
+            }
+
+            color
+        } else {
+            Vec3::new([0.0, 0.0, 0.0])
+        }
+    }
+
+    fn scatter(&self, ray: &&Ray, hit_record: &HitRecord) -> Option<Ray> {
+        hit_record.material.scatter(ray, hit_record)
+    }
 }
