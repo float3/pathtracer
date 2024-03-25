@@ -39,7 +39,7 @@ impl PathTracer {
     }
 
     fn trace_ray(&self, scene: &Scene, ray: &Ray, depth: u32) -> Vec3<FloatSize> {
-        if depth == 5 {
+        if depth == 0 {
             return Vec3::new([0.0, 0.0, 0.0]);
         }
 
@@ -49,7 +49,7 @@ impl PathTracer {
             let scattered = self.scatter(&ray, &hit_record);
 
             if let Some(scattered) = scattered {
-                return color * self.trace_ray(scene, &scattered, depth + 1);
+                return color * self.trace_ray(scene, &scattered, depth - 1);
             }
 
             color

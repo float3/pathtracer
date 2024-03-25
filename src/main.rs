@@ -7,12 +7,10 @@ use pathtracer::{
     object::{plane::Plane, sphere::Sphere},
     utils::vector::Vec3,
 };
-// use tokio::task;
 
 const WIDTH: usize = 640;
 const HEIGHT: usize = 360;
 
-// #[tokio::main] async
 fn main() {
     let mut window = Window::new(
         "Test Window",
@@ -28,7 +26,6 @@ fn main() {
     });
 
     let buffer: Vec<u32> = {
-        // task::spawn(async move {
         let scene = Scene {
             objects: vec![
                 Box::new(Sphere::new(
@@ -60,8 +57,6 @@ fn main() {
         let pathtracer = PathTracer::new(WIDTH, HEIGHT);
         pathtracer.trace(&scene)
     };
-    // .await
-    // .unwrap();
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
     }

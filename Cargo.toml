@@ -9,7 +9,6 @@ edition = "2021"
 minifb = { version = "0.25.0", features = ["x11", "x11-dl"] }
 num-traits = "0.2.18"
 rand = "0.8.5"
-tokio = { version = "1.36.0", features = ["full"] }
 
 [profile.dev]
 
