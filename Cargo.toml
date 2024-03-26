@@ -15,7 +15,6 @@ rayon = "1.10.0"
 [profile.dev]
 
 [profile.release]
-opt-level = 3
 
 [dev-dependencies]
 float-cmp = "0.9.0"
