@@ -31,7 +31,6 @@ impl Scene {
         for object in self.objects.iter() {
             if let Some(record) = object.hit(ray, arg, closest_so_far) {
                 closest_so_far = record.t;
-                // println!("Hit: {:?}", &record);
                 hit_record = Some(record);
             }
         }
