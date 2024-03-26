@@ -76,6 +76,10 @@ where
         let s: T = num_traits::NumCast::from(1e-8).unwrap();
         self.0.iter().all(|&x| x.abs() < s)
     }
+
+    pub(crate) fn magnitude(&self) -> T {
+        self.length()
+    }
 }
 
 impl<T> Vector<T, 3>

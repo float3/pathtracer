@@ -2,6 +2,7 @@ use ::pathtracer::{pathtracer::PathTracer, scene::Scene};
 use minifb::{Key, Scale, Window, WindowOptions};
 use pathtracer::{
     camera::Camera,
+    light::pointlight::PointLight,
     material::Material,
     object::{plane::Plane, sphere::Sphere},
     scene::FloatSize,
@@ -17,10 +18,10 @@ fn main() {
         let scene = Scene {
             objects: vec![
                 Box::new(Sphere::new(
-                    Vec3::new([0.0, 1.0, 0.0]),
+                    Vec3::new([0.0, 1.5, 0.0]),
                     1.0,
                     Material {
-                        albedo: Vec3::new([1.5, 0.0, 0.0]),
+                        albedo: Vec3::new([1.0, 0.0, 0.0]),
                         reflectivity: 1.0,
                     },
                 )),
@@ -28,16 +29,15 @@ fn main() {
                     Vec3::new([0.0, 0.0, 0.0]),
                     Vec3::new([0.0, 1.0, 0.0]),
                     Material {
-                        albedo: Vec3::new([1.0, 1.0, 1.0]),
-                        reflectivity: 1.0,
+                        albedo: Vec3::new([0.5, 0.5, 0.5]),
+                        reflectivity: 0.0,
                     },
                 )),
             ],
-            lights: vec![
-            // Box::new(PointLight::new(
-            // Vec3::new([0.0, 3.0, 0.0]),
-            // Vec3::new([1.0, 1.0, 1.0]),))
-            ],
+            lights: vec![Box::new(PointLight::new(
+                Vec3::new([0.0, 3.0, 0.0]),
+                Vec3::new([1.0, 1.0, 1.0]),
+            ))],
             camera: Camera::new(
                 Vec3::new([0.0, 0.5, 3.0]),
                 Vec3::new([0.0, 0.0, -1.0]),

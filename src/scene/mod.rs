@@ -3,6 +3,7 @@ use rand::rngs::ThreadRng;
 use crate::{
     camera::Camera,
     light::Light,
+    material::Material,
     object::{HitRecord, Hittable},
     ray::Ray,
     skybox::Skybox,
@@ -51,7 +52,7 @@ impl Scene {
         let mut ray: Ray = *ray;
         for _bounce in 0..depth {
             if let Some(hit_record) = self.hit(&ray, 0.001) {
-                let color: Vec3<FloatSize> = self.illuminate(&hit_record);
+                // let mut color: Vec3<FloatSize> = self.illuminate(&hit_record);
 
                 ray = hit_record
                     .material
@@ -67,10 +68,40 @@ impl Scene {
                 let pdf = 1.0 / (2.0 * std::f64::consts::PI as FloatSize);
 
                 throughput *= brdf.scale(cos_theta).scale(pdf.recip());
+
+                // for light in &self.lights.clone() {
+                //     let light_direction = light.position() - hit_record.point;
+                //     let distance_to_light = light_direction.magnitude();
+                //     let shadow_ray = Ray::new(hit_record.point, light_direction.normalize());
+                //     if !self.shadow_hit(&shadow_ray, 0.001, distance_to_light) {
+                //         let light_intensity = light.intensity()
+                //             / (4.0 * std::f64::consts::PI * distance_to_light.powi(2));
+                //         let light_power = light.color().scale(light_intensity);
+                //         let cos_theta = shadow_ray.direction.dot(&hit_record.normal).max(0.0);
+                //         throughput *= light_power.scale(cos_theta);
+                //     }
+                // }
+
+                let reflectivity = hit_record.material.reflectivity;
+                // if reflectivity > 0.0 {
+                //     let reflected_direction =
+                //         Material::reflect(&ray.direction.normalize(), &hit_record.normal);
+                //     ray = Ray::new(hit_record.point, reflected_direction);
+                //     throughput *= Vec3::new([reflectivity, reflectivity, reflectivity]);
+                // }
             } else {
                 return throughput * self.skybox.color;
             }
         }
         Vec3::new([0.0, 0.0, 0.0])
+    }
+
+    fn shadow_hit(&self, shadow_ray: &Ray, arg: f64, distance_to_light: f64) -> bool {
+        for object in self.objects.iter() {
+            if let Some(_record) = object.hit(shadow_ray, arg, distance_to_light) {
+                return true;
+            }
+        }
+        false
     }
 }

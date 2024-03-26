@@ -22,7 +22,11 @@ impl Ray {
     //     }
     // }
 
-    pub(crate) fn at(&self, root: FloatSize) -> Vec3<FloatSize> {
+    pub fn new(origin: Vec3<FloatSize>, direction: Vec3<FloatSize>) -> Ray {
+        Ray { origin, direction }
+    }
+
+    pub fn at(&self, root: FloatSize) -> Vec3<FloatSize> {
         self.origin + self.direction.scale(root)
     }
 }
