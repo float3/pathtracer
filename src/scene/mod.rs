@@ -2,9 +2,9 @@ use rand::rngs::ThreadRng;
 
 use crate::{
     camera::Camera,
-    light::Light,
+    light::{pointlight::PointLight, Light},
     material::Material,
-    object::{HitRecord, Hittable},
+    object::{quad::Quad, HitRecord, Hittable},
     ray::Ray,
     skybox::Skybox,
     utils::vector::Vec3,
@@ -106,5 +106,67 @@ impl Scene {
             }
         }
         light.color()
+    }
+
+    pub fn cornell_box() -> Self {
+        let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
+        let mut lights: Vec<Box<dyn Light>> = Vec::new();
+
+        // Floor
+        objects.push(Box::new(Quad::new(
+            Vec3::new([-1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 0.0, 1.0]),
+            Vec3::new([-1.0, 0.0, 1.0]),
+            Material::white(),
+        )));
+        // Ceiling
+        objects.push(Box::new(Quad::new(
+            Vec3::new([-1.0, 2.0, -1.0]),
+            Vec3::new([1.0, 2.0, -1.0]),
+            Vec3::new([1.0, 2.0, 1.0]),
+            Vec3::new([-1.0, 2.0, 1.0]),
+            Material::white(),
+        )));
+        // Back wall
+        objects.push(Box::new(Quad::new(
+            Vec3::new([-1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 2.0, -1.0]),
+            Vec3::new([-1.0, 2.0, -1.0]),
+            Material::white(),
+        )));
+        // Right wall (Green)
+        objects.push(Box::new(Quad::new(
+            Vec3::new([1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 0.0, 1.0]),
+            Vec3::new([1.0, 2.0, 1.0]),
+            Vec3::new([1.0, 2.0, -1.0]),
+            Material::green(),
+        )));
+        // Left wall (Red)
+        objects.push(Box::new(Quad::new(
+            Vec3::new([-1.0, 0.0, -1.0]),
+            Vec3::new([-1.0, 0.0, 1.0]),
+            Vec3::new([-1.0, 2.0, 1.0]),
+            Vec3::new([-1.0, 2.0, -1.0]),
+            Material::red(),
+        )));
+
+        lights.push(Box::new(PointLight::new(
+            Vec3::new([0.0, 1.9, 0.0]),
+            Vec3::new([15.0, 15.0, 15.0]),
+        )));
+
+        let camera = Camera::new(Vec3::new([0.0, 1.0, 3.0]), Vec3::new([0.0, 0.0, -1.0]));
+        let skybox = Skybox {
+            color: Vec3::new([0.1, 0.1, 0.1]),
+        };
+        Scene {
+            objects,
+            lights,
+            camera,
+            skybox,
+        }
     }
 }

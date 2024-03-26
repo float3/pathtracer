@@ -20,63 +20,30 @@ fn main() {
                 Box::new(Sphere::new(
                     Vec3::new([0.0, 1.5, 0.0]),
                     1.0,
-                    Material {
-                        albedo: Vec3::new([0.0, 0.0, 0.0]),
-                        reflectivity: 1.0,
-                    },
+                    Material::reflective(),
                 )),
                 Box::new(Sphere::new(
                     Vec3::new([2.0, 1.0, 0.0]),
                     1.0,
-                    Material {
-                        albedo: Vec3::new([1.0, 0.0, 0.0]),
-                        reflectivity: 0.0,
-                    },
+                    Material::red(),
                 )),
                 Box::new(Sphere::new(
                     Vec3::new([-2.0, 1.0, 0.0]),
                     1.0,
-                    Material {
-                        albedo: Vec3::new([1.0, 0.0, 0.0]),
-                        reflectivity: 0.0,
-                    },
+                    Material::red(),
                 )),
                 Box::new(Sphere::new(
                     Vec3::new([0.0, 2000.0, 100.0]),
                     900.0,
-                    Material {
-                        albedo: Vec3::new([1.0, 0.0, 0.0]),
-                        reflectivity: 0.0,
-                    },
+                    Material::red(),
                 )),
                 Box::new(Quad::new(
                     Vec3::new([1.0, 0.0, 1.0]),
                     Vec3::new([1.0, 0.0, -1.0]),
                     Vec3::new([-1.0, 0.0, -1.0]),
                     Vec3::new([-1.0, 0.0, 1.0]),
-                    Material {
-                        albedo: Vec3::new([1.0, 1.0, 1.0]),
-                        reflectivity: 0.0,
-                    },
+                    Material::white(),
                 )),
-                // Box::new(Quad::new(
-                //     Vec3::new([1.0, 3.0, 1.0]),
-                //     Vec3::new([-1.0, 3.0, 1.0]),
-                //     Vec3::new([-1.0, 3.0, -1.0]),
-                //     Vec3::new([1.0, 3.0, -1.0]),
-                //     Material {
-                //         albedo: Vec3::new([1.0, 1.0, 1.0]),
-                //         reflectivity: 0.0,
-                //     },
-                // )),
-                // Box::new(Plane::new(
-                //     Vec3::new([0.0, 0.0, 0.0]),
-                //     Vec3::new([0.0, 1.0, 0.0]),
-                //     Material {
-                //         albedo: Vec3::new([1.0, 0.5, 0.5]),
-                //         reflectivity: 0.0,
-                //     },
-                // )),
             ],
             lights: vec![Box::new(PointLight::new(
                 Vec3::new([0.0, 5.0, 0.0]),
@@ -112,11 +79,8 @@ fn main() {
     let modbuffer = &buffer
         .iter()
         .flat_map(|color| {
-            vec![
-                (color.0[0] * 255 as FloatSize) as u8,
-                (color.0[1] * 255 as FloatSize) as u8,
-                (color.0[2] * 255 as FloatSize) as u8,
-            ]
+            let color = color.scale(255.0 as FloatSize);
+            vec![(color.0[0]) as u8, (color.0[1]) as u8, (color.0[2]) as u8]
         })
         .collect::<Vec<u8>>();
 

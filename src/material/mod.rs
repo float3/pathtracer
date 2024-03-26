@@ -111,13 +111,6 @@ impl Material {
         *v - n.scale(2.0 * v.dot(n))
     }
 
-    pub fn diffuse() -> Material {
-        Material {
-            albedo: Vec3::new([1.0, 1.0, 1.0]),
-            reflectivity: 0.0,
-        }
-    }
-
     pub fn reflective() -> Material {
         Material {
             albedo: Vec3::new([1.0, 1.0, 1.0]),
@@ -125,16 +118,37 @@ impl Material {
         }
     }
 
-    pub fn mirror() -> Material {
+    pub fn red() -> Material {
         Material {
-            albedo: Vec3::new([1.0, 1.0, 1.0]),
-            reflectivity: 1.0,
+            albedo: Vec3::new([1.0, 0.0, 0.0]),
+            reflectivity: 0.0,
         }
     }
 
-    pub fn checkered() -> Material {
+    pub fn green() -> Material {
+        Material {
+            albedo: Vec3::new([0.0, 1.0, 0.0]),
+            reflectivity: 0.0,
+        }
+    }
+
+    pub fn blue() -> Material {
+        Material {
+            albedo: Vec3::new([0.0, 0.0, 1.0]),
+            reflectivity: 0.0,
+        }
+    }
+
+    pub fn white() -> Material {
         Material {
             albedo: Vec3::new([1.0, 1.0, 1.0]),
+            reflectivity: 0.0,
+        }
+    }
+
+    pub fn black() -> Material {
+        Material {
+            albedo: Vec3::new([0.0, 0.0, 0.0]),
             reflectivity: 0.0,
         }
     }
