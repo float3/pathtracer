@@ -5,6 +5,7 @@ use crate::{
     light::Light,
     object::{HitRecord, Hittable},
     ray::Ray,
+    skybox::Skybox,
     utils::vector::Vec3,
 };
 
@@ -13,7 +14,7 @@ pub type FloatSize = f64;
 pub struct Scene {
     pub objects: Vec<Box<dyn Hittable>>,
     pub lights: Vec<Box<dyn Light>>,
-    pub skybox: Vec3<FloatSize>,
+    pub skybox: Skybox,
     pub camera: Camera,
 }
 impl Scene {
@@ -57,7 +58,7 @@ impl Scene {
 
                 throughput *= brdf.scale(cos_theta).scale(pdf.recip());
             } else {
-                return throughput * self.skybox;
+                return throughput * self.skybox.color;
             }
         }
         Vec3::new([0.0, 0.0, 0.0])
