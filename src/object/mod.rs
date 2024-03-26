@@ -1,6 +1,12 @@
-use crate::{material::Material, ray::Ray, scene::FloatSize, utils::vector::Vec3};
+use crate::{
+    material::Material,
+    ray::Ray,
+    scene::FloatSize,
+    utils::vector::{Vec2, Vec3},
+};
 
 pub mod plane;
+pub mod quad;
 pub mod sphere;
 
 // pub trait Hittable: Sync + Serialize + for<'a> Deserialize<'a> {
@@ -14,4 +20,5 @@ pub struct HitRecord<'a> {
     pub t: FloatSize,
     pub front_face: bool,
     pub material: &'a Material,
+    pub uv: Option<Vec2<FloatSize>>,
 }

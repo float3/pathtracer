@@ -81,8 +81,9 @@ impl Scene {
                 if reflectivity > 0.0 {
                     let reflected_direction =
                         Material::reflect(&ray.direction.normalize(), &hit_record.normal);
-                    ray = Ray::new(hit_record.point, reflected_direction);
-                    throughput *= Vec3::new([reflectivity, reflectivity, reflectivity]);
+                    let new_ray = Ray::new(hit_record.point, reflected_direction);
+                    let color = &self.trace_ray(&new_ray, depth + 1, rand_state, is_left);
+                    return color.scale(reflectivity);
                 }
             } else {
                 return emitted + (throughput * self.skybox.color);

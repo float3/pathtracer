@@ -32,6 +32,7 @@ impl Hittable for Plane {
                     t: distance,
                     front_face: true,
                     material: &self.material,
+                    uv: None,
                 });
             }
         }

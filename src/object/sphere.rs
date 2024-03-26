@@ -54,6 +54,7 @@ impl Hittable for Sphere {
             t: root,
             front_face,
             material: &self.material,
+            uv: None,
         })
     }
 }

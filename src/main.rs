@@ -4,7 +4,7 @@ use pathtracer::{
     camera::Camera,
     light::pointlight::PointLight,
     material::Material,
-    object::{plane::Plane, sphere::Sphere},
+    object::{quad::Quad, sphere::Sphere},
     scene::FloatSize,
     utils::vector::Vec3,
 };
@@ -22,17 +22,27 @@ fn main() {
                     1.0,
                     Material {
                         albedo: Vec3::new([1.0, 0.0, 0.0]),
-                        reflectivity: 0.0,
+                        reflectivity: 1.0,
                     },
                 )),
-                Box::new(Plane::new(
-                    Vec3::new([0.0, 0.0, 0.0]),
-                    Vec3::new([0.0, 1.0, 0.0]),
+                Box::new(Quad::new(
+                    Vec3::new([1.0, 0.0, 1.0]),
+                    Vec3::new([1.0, 0.0, -1.0]),
+                    Vec3::new([-1.0, 0.0, -1.0]),
+                    Vec3::new([-1.0, 0.0, 1.0]),
                     Material {
-                        albedo: Vec3::new([0.5, 0.5, 0.5]),
+                        albedo: Vec3::new([1.0, 1.0, 1.0]),
                         reflectivity: 0.0,
                     },
                 )),
+                // Box::new(Plane::new(
+                //     Vec3::new([0.0, 0.0, 0.0]),
+                //     Vec3::new([0.0, 1.0, 0.0]),
+                //     Material {
+                //         albedo: Vec3::new([1.0, 0.5, 0.5]),
+                //         reflectivity: 0.0,
+                //     },
+                // )),
             ],
             lights: vec![Box::new(PointLight::new(
                 Vec3::new([0.0, 5.0, 0.0]),
