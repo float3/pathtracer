@@ -53,40 +53,41 @@ impl Scene {
         let mut emitted = Vec3::new([0.0, 0.0, 0.0]);
         for _bounce in 0..depth {
             if let Some(hit_record) = self.hit(&ray, 0.001) {
-                // let mut color: Vec3<FloatSize> = self.illuminate(&hit_record);
+                if hit_record.material.reflectivity == 1.0 {
+                    let reflected =
+                        Material::reflect(&ray.direction.normalize(), &hit_record.normal);
+                    ray = Ray {
+                        origin: hit_record.point + reflected.scale(0.001),
+                        direction: reflected,
+                    };
+                } else {
+                    ray = hit_record
+                        .material
+                        .scatter(&hit_record, rand_state, is_left);
 
-                ray = hit_record
-                    .material
-                    .scatter(&ray, &hit_record, rand_state, is_left);
+                    let brdf = hit_record
+                        .material
+                        .color(&hit_record)
+                        .scale(1.0 as FloatSize / std::f64::consts::PI as FloatSize);
 
-                let brdf = hit_record
-                    .material
-                    .color(&hit_record)
-                    .scale(1.0 as FloatSize / std::f64::consts::PI as FloatSize);
+                    let cos_theta = ray.direction.dot(&hit_record.normal);
 
-                let cos_theta = ray.direction.dot(&hit_record.normal);
+                    let pdf = if is_left {
+                        cos_theta / std::f64::consts::PI as FloatSize
+                    } else {
+                        cos_theta / std::f64::consts::PI as FloatSize
+                        // 1.0 / (2.0 * std::f64::consts::pi as floatsize)
+                    };
 
-                let pdf = 1.0 / (2.0 * std::f64::consts::PI as FloatSize);
+                    throughput *= brdf.scale(cos_theta).scale(pdf.recip());
 
-                throughput *= brdf.scale(cos_theta).scale(pdf.recip());
-
-                for light in &self.lights {
-                    let light_color = self.light_ray(&hit_record, light);
-                    let light_direction = (light.position() - hit_record.point).normalize();
-                    let n_dot_l = hit_record.normal.dot(&light_direction).max(0.0);
-                    emitted += light_color.scale(n_dot_l) * throughput;
+                    for light in &self.lights {
+                        let light_color = self.light_ray(&hit_record, light);
+                        let light_direction = (light.position() - hit_record.point).normalize();
+                        let n_dot_l = hit_record.normal.dot(&light_direction).max(0.0);
+                        emitted += light_color.scale(n_dot_l) * throughput;
+                    }
                 }
-
-                // let reflectivity = hit_record.material.reflectivity;
-                // if reflectivity > 0.0 {
-                //     let reflected_direction =
-                //         Material::reflect(&ray.direction.normalize(), &hit_record.normal);
-                //     let new_ray = Ray::new(
-                //         hit_record.point + reflected_direction.scale(1e-4),
-                //         reflected_direction,
-                //     );
-                //     let color = self.trace_ray(&new_ray, 1, rand_state, is_left);
-                // }
             } else {
                 return emitted + (throughput * self.skybox.color);
             }

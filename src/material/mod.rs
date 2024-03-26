@@ -71,7 +71,6 @@ fn cosine_weighted_sample_2(
 impl Material {
     pub fn scatter(
         &self,
-        ray: &Ray,
         hit_record: &HitRecord,
         rand_state: &mut ThreadRng,
         is_left: bool,
@@ -80,6 +79,7 @@ impl Material {
             cosine_weighted_sample_1(&hit_record.normal, rand_state)
         } else {
             cosine_weighted_sample_2(&hit_record.normal, rand_state)
+            // random_unit_vector(rand_state)
         };
         if random.dot(&hit_record.normal) < 0.0 {
             random = random.scale(-1.0);
