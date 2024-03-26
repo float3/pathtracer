@@ -1,6 +1,7 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-use num_traits::Float;
+use num_traits::{Float, FromPrimitive};
+use toml::Value;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vector<T, const N: usize>(pub [T; N]);
@@ -9,8 +10,6 @@ impl<T, const N: usize> Vector<T, N>
 where
     T: Copy
         + Default
-        // + serde::Serialize
-        // + for<'a> serde::Deserialize<'a>
         + Add<Output = T>
         + Sub<Output = T>
         + Mul<Output = T>
@@ -25,7 +24,8 @@ where
         + Default
         + From<T>
         + Into<T>
-        + Float,
+        + Float
+        + FromPrimitive,
 {
     pub fn new(elements: [T; N]) -> Self {
         Vector(elements)
@@ -79,6 +79,22 @@ where
 
     pub(crate) fn magnitude(&self) -> T {
         self.length()
+    }
+
+    pub fn from_toml(toml: &Value) -> Self {
+        let elements = toml
+            .as_array()
+            .expect("Expected an array")
+            .iter()
+            .map(|v| {
+                let num = v.as_float().expect("Expected a floating-point number");
+                T::from_f64(num).expect("Conversion failed")
+            })
+            .collect::<Vec<T>>();
+
+        let mut array = [T::default(); N];
+        array.copy_from_slice(&elements[..N]);
+        Vector(array)
     }
 }
 
@@ -311,9 +327,10 @@ impl<T> Vec4<T> {
 }
 #[cfg(test)]
 mod vector_tests {
+
     use super::*;
     use float_cmp::approx_eq;
-
+    use toml::Value;
     #[test]
     fn test_new() {
         let v = Vector::new([1.0, 2.0, 3.0]);
@@ -485,5 +502,28 @@ mod vector_tests {
         let v2 = Vector::new([4.0, 5.0, 6.0]);
         assert!(v1 < v2);
         assert!(v2 > v1);
+    }
+
+    #[test]
+    fn test_from_toml_success() {
+        let toml_str = "values = [1.0]";
+        let toml_value: Value = toml_str.parse().unwrap();
+        let vector: Vector<f64, 1> = Vector::from_toml(toml_value.get("values").unwrap());
+        assert_eq!(vector.0, [1.0]);
+
+        let toml_str = "values = [1.0, 2.0]";
+        let toml_value: Value = toml_str.parse().unwrap();
+        let vector: Vector<f64, 2> = Vector::from_toml(toml_value.get("values").unwrap());
+        assert_eq!(vector.0, [1.0, 2.0]);
+
+        let toml_str = "values = [1.0, 2.0, 3.0]";
+        let toml_value: Value = toml_str.parse().unwrap();
+        let vector: Vector<f64, 3> = Vector::from_toml(toml_value.get("values").unwrap());
+        assert_eq!(vector.0, [1.0, 2.0, 3.0]);
+
+        let toml_str = "values = [1.0, 2.0, 3.0, 4.0]";
+        let toml_value: Value = toml_str.parse().unwrap();
+        let vector: Vector<f64, 4> = Vector::from_toml(toml_value.get("values").unwrap());
+        assert_eq!(vector.0, [1.0, 2.0, 3.0, 4.0]);
     }
 }

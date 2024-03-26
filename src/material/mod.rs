@@ -171,4 +171,17 @@ impl Material {
             checkered: false,
         }
     }
+
+    pub(crate) fn from_toml(object: &toml::Value) -> Material {
+        match object.as_str().unwrap() {
+            "reflective" => Material::reflective(),
+            "red" => Material::red(),
+            "green" => Material::green(),
+            "blue" => Material::blue(),
+            "white" => Material::white(),
+            "checkered" => Material::checkered(),
+            "black" => Material::black(),
+            _ => todo!(),
+        }
+    }
 }

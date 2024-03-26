@@ -1,4 +1,5 @@
 use rand::rngs::ThreadRng;
+use toml::Value;
 
 use crate::{
     camera::Camera,
@@ -162,6 +163,71 @@ impl Scene {
         let skybox = Skybox {
             color: Vec3::new([0.1, 0.1, 0.1]),
         };
+        Scene {
+            objects,
+            lights,
+            camera,
+            skybox,
+        }
+    }
+
+    pub fn from_toml(toml: &Value) -> Self {
+        let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
+        let mut lights: Vec<Box<dyn Light>> = Vec::new();
+
+        let camera = Camera::new(
+            Vec3::from_toml(&toml["camera"]["position"]),
+            Vec3::from_toml(&toml["camera"]["direction"]),
+        );
+
+        let skybox = Skybox {
+            color: Vec3::from_toml(&toml["skybox"]["color"]),
+        };
+
+        for object in toml["objects"].as_array().unwrap() {
+            let object_type = object["type"].as_str().unwrap();
+            let material = Material::from_toml(&object["material"]);
+            match object_type {
+                "quad" => {
+                    objects.push(Box::new(Quad::new(
+                        Vec3::from_toml(&object["point1"]),
+                        Vec3::from_toml(&object["point2"]),
+                        Vec3::from_toml(&object["point3"]),
+                        Vec3::from_toml(&object["point4"]),
+                        material,
+                    )));
+                }
+                "sphere" => {
+                    objects.push(Box::new(crate::object::sphere::Sphere::new(
+                        Vec3::from_toml(&object["position"]),
+                        object["radius"].as_float().unwrap(),
+                        material,
+                    )));
+                }
+                "plane" => {
+                    objects.push(Box::new(crate::object::plane::Plane::new(
+                        Vec3::from_toml(&object["point"]),
+                        Vec3::from_toml(&object["normal"]),
+                        material,
+                    )));
+                }
+                _ => panic!("Unknown object type: {}", object_type),
+            }
+        }
+
+        for light in toml["lights"].as_array().unwrap() {
+            let light_type = light["type"].as_str().unwrap();
+            match light_type {
+                "point" => {
+                    lights.push(Box::new(PointLight::new(
+                        Vec3::from_toml(&light["position"]),
+                        Vec3::from_toml(&light["color"]),
+                    )));
+                }
+                _ => panic!("Unknown light type: {}", light_type),
+            }
+        }
+
         Scene {
             objects,
             lights,

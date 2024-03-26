@@ -1,13 +1,8 @@
 use ::pathtracer::{pathtracer::PathTracer, scene::Scene};
 use minifb::{Key, Scale, Window, WindowOptions};
-use pathtracer::{
-    camera::Camera,
-    light::pointlight::PointLight,
-    material::Material,
-    object::{quad::Quad, sphere::Sphere},
-    scene::FloatSize,
-    utils::vector::Vec3,
-};
+use pathtracer::scene::FloatSize;
+
+use toml::Value;
 
 const MULTIPLIER: usize = 2;
 const WIDTH: usize = 640 * MULTIPLIER;
@@ -15,7 +10,7 @@ const HEIGHT: usize = 360 * MULTIPLIER;
 const SAMPLE_COUNT: usize = 256 * MULTIPLIER;
 fn main() {
     let buffer = {
-        let scene = Scene {
+        /*let scene = Scene {
             objects: vec![
                 Box::new(Sphere::new(
                     Vec3::new([0.0, 1.5, 0.0]),
@@ -61,7 +56,12 @@ fn main() {
             skybox: pathtracer::skybox::Skybox {
                 color: Vec3::new([0.1, 0.1, 0.1]),
             },
-        };
+        }; */
+
+        let toml_str = std::fs::read_to_string("scene.toml").expect("Failed to read scene.toml");
+        let value = toml::from_str::<Value>(&toml_str).expect("Failed to parse TOML file");
+
+        let scene = Scene::from_toml(&value);
 
         let pathtracer = PathTracer::new(WIDTH, HEIGHT, SAMPLE_COUNT);
         pathtracer.trace(&scene)

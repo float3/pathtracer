@@ -5,11 +5,30 @@ use crate::{
     utils::vector::{Vec2, Vec3},
 };
 
+pub mod cube;
 pub mod plane;
 pub mod quad;
 pub mod sphere;
 
-// pub trait Hittable: Sync + Serialize + for<'a> Deserialize<'a> {
+pub enum ObjectType {
+    Sphere,
+    Quad,
+    Plane,
+    Box,
+}
+
+impl ObjectType {
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "sphere" => Some(Self::Sphere),
+            "quad" => Some(Self::Quad),
+            "plane" => Some(Self::Plane),
+            "box" => Some(Self::Box),
+            _ => None,
+        }
+    }
+}
+
 pub trait Hittable: Sync + std::fmt::Debug {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord>;
 }

@@ -4,8 +4,8 @@ use crate::{ray::Ray, scene::FloatSize, utils::vector::Vec3};
 
 #[derive(Debug)]
 pub struct Camera {
-    position: Vec3<FloatSize>,
-    direction: Vec3<FloatSize>,
+    pub position: Vec3<FloatSize>,
+    pub direction: Vec3<FloatSize>,
     // up: Vec3<FloatSize>,
     // right: Vec3<FloatSize>,
     // fov: f32,
