@@ -22,7 +22,7 @@ fn main() {
                     1.0,
                     Material {
                         albedo: Vec3::new([1.0, 0.0, 0.0]),
-                        reflectivity: 1.0,
+                        reflectivity: 0.0,
                     },
                 )),
                 Box::new(Plane::new(
@@ -35,7 +35,7 @@ fn main() {
                 )),
             ],
             lights: vec![Box::new(PointLight::new(
-                Vec3::new([0.0, 3.0, 0.0]),
+                Vec3::new([0.0, 5.0, 0.0]),
                 Vec3::new([1.0, 1.0, 1.0]),
             ))],
             camera: Camera::new(
@@ -48,7 +48,7 @@ fn main() {
                 // 100.0,
             ),
             skybox: pathtracer::skybox::Skybox {
-                color: Vec3::new([1.0, 1.0, 1.0]),
+                color: Vec3::new([0.1, 0.1, 0.1]),
             },
         };
 
