@@ -5,13 +5,16 @@ use rayon::prelude::*;
 pub struct PathTracer {
     width: usize,
     height: usize,
+    samples: usize,
 }
 
-const SAMPLE_COUNT: i32 = 256; //* 4;
-
 impl PathTracer {
-    pub fn new(width: usize, height: usize) -> Self {
-        Self { width, height }
+    pub fn new(width: usize, height: usize, samples: usize) -> Self {
+        Self {
+            width,
+            height,
+            samples,
+        }
     }
 
     pub fn trace(&self, scene: &Scene) -> Vec<Vec3<FloatSize>> {
@@ -20,7 +23,7 @@ impl PathTracer {
             .par_chunks_mut(self.width)
             .enumerate()
             .for_each(|(y, row)| {
-                (0..SAMPLE_COUNT).for_each(|_sample| {
+                (0..self.samples).for_each(|_sample| {
                     let mut rand_state = rand::thread_rng();
                     (0..self.width).for_each(|x| {
                         let ray = scene.camera.get_ray(
@@ -31,7 +34,7 @@ impl PathTracer {
                             &mut rand_state,
                         );
                         let color = scene.trace_ray(&ray, 10, &mut rand_state);
-                        row[x] += color.scale(1.0 / SAMPLE_COUNT as FloatSize);
+                        row[x] += color.scale(1.0 / self.samples as FloatSize);
                     });
                 });
             });

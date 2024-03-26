@@ -7,9 +7,9 @@ use pathtracer::{
     utils::vector::Vec3,
 };
 
-const WIDTH: usize = 640; //* 2;
-const HEIGHT: usize = 360; // * 2;
-
+const WIDTH: usize = 640 * 2;
+const HEIGHT: usize = 360 * 2;
+const SAMPLE_COUNT: usize = 256 * 2;
 fn main() {
     let buffer = {
         let scene = Scene {
@@ -48,7 +48,7 @@ fn main() {
             skybox: Vec3::new([1.0, 1.0, 1.0]),
         };
 
-        let pathtracer = PathTracer::new(WIDTH, HEIGHT);
+        let pathtracer = PathTracer::new(WIDTH, HEIGHT, SAMPLE_COUNT);
         pathtracer.trace(&scene)
     };
 
