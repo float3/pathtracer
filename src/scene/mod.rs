@@ -77,14 +77,16 @@ impl Scene {
                     emitted += light_color.scale(n_dot_l) * throughput;
                 }
 
-                let reflectivity = hit_record.material.reflectivity;
-                if reflectivity > 0.0 {
-                    let reflected_direction =
-                        Material::reflect(&ray.direction.normalize(), &hit_record.normal);
-                    let new_ray = Ray::new(hit_record.point, reflected_direction);
-                    let color = &self.trace_ray(&new_ray, depth + 1, rand_state, is_left);
-                    return color.scale(reflectivity);
-                }
+                // let reflectivity = hit_record.material.reflectivity;
+                // if reflectivity > 0.0 {
+                //     let reflected_direction =
+                //         Material::reflect(&ray.direction.normalize(), &hit_record.normal);
+                //     let new_ray = Ray::new(
+                //         hit_record.point + reflected_direction.scale(1e-4),
+                //         reflected_direction,
+                //     );
+                //     let color = self.trace_ray(&new_ray, 1, rand_state, is_left);
+                // }
             } else {
                 return emitted + (throughput * self.skybox.color);
             }
