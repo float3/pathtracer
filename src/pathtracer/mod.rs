@@ -27,10 +27,10 @@ impl PathTracer {
                     let mut rand_state = rand::thread_rng();
                     (0..self.width).for_each(|x| {
                         let ray = scene.camera.get_ray(
-                            x as f32,
-                            y as f32,
-                            self.width as f32,
-                            self.height as f32,
+                            x as FloatSize,
+                            y as FloatSize,
+                            self.width as FloatSize,
+                            self.height as FloatSize,
                             &mut rand_state,
                         );
                         let color = scene.trace_ray(&ray, 10, &mut rand_state);

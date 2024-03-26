@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use rand::rngs::ThreadRng;
 
 use crate::{
@@ -10,7 +8,7 @@ use crate::{
     utils::vector::Vec3,
 };
 
-pub type FloatSize = f32;
+pub type FloatSize = f64;
 
 pub struct Scene {
     pub objects: Vec<Box<dyn Hittable>>,
@@ -49,11 +47,14 @@ impl Scene {
 
                 ray = hit_record.material.scatter(&ray, &hit_record, rand_state);
 
-                let brdf = hit_record.material.albedo.scale(1.0f32 / PI);
+                let brdf = hit_record
+                    .material
+                    .albedo
+                    .scale(1.0 as FloatSize / std::f64::consts::PI as FloatSize);
 
                 let cos_theta = ray.direction.dot(&hit_record.normal);
 
-                let pdf = 1.0 / (2.0 * PI);
+                let pdf = 1.0 / (2.0 * std::f64::consts::PI as FloatSize);
 
                 throughput *= brdf.scale(cos_theta).scale(pdf.recip());
             } else {

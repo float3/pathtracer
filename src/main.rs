@@ -4,6 +4,7 @@ use pathtracer::{
     camera::Camera,
     material::Material,
     object::{plane::Plane, sphere::Sphere},
+    scene::FloatSize,
     utils::vector::Vec3,
 };
 
@@ -65,9 +66,9 @@ fn main() {
         .iter()
         .flat_map(|color| {
             vec![
-                (color.0[0] * 255f32) as u8,
-                (color.0[1] * 255f32) as u8,
-                (color.0[2] * 255f32) as u8,
+                (color.0[0] * 255 as FloatSize) as u8,
+                (color.0[1] * 255 as FloatSize) as u8,
+                (color.0[2] * 255 as FloatSize) as u8,
             ]
         })
         .collect::<Vec<u8>>();
