@@ -2,6 +2,7 @@ use rand::{rngs::ThreadRng, Rng};
 
 use crate::{ray::Ray, scene::FloatSize, utils::vector::Vec3};
 
+#[derive(Debug)]
 pub struct Camera {
     position: Vec3<FloatSize>,
     direction: Vec3<FloatSize>,

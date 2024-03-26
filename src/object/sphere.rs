@@ -2,6 +2,7 @@ use crate::{material::Material, ray::Ray, scene::FloatSize, utils::vector::Vec3}
 
 use super::{HitRecord, Hittable};
 
+#[derive(Debug)]
 pub struct Sphere {
     center: Vec3<FloatSize>,
     radius: FloatSize,

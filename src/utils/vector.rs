@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num_traits::Float;
 
@@ -8,12 +8,20 @@ pub struct Vector<T, const N: usize>(pub [T; N]);
 impl<T, const N: usize> Vector<T, N>
 where
     T: Copy
+        + Default
+        // + serde::Serialize
+        // + for<'a> serde::Deserialize<'a>
         + Add<Output = T>
-        + AddAssign<T>
-        + Neg<Output = T>
         + Sub<Output = T>
         + Mul<Output = T>
+        + Div<Output = T>
+        + Neg<Output = T>
+        + AddAssign<T>
+        + SubAssign<T>
         + MulAssign<T>
+        + DivAssign<T>
+        + PartialEq
+        + PartialOrd
         + Default
         + From<T>
         + Into<T>
@@ -47,6 +55,14 @@ where
         let mut result = [T::default(); N];
         for (i, item) in result.iter_mut().enumerate().take(N) {
             *item = self.0[i] * scalar;
+        }
+        Vector(result)
+    }
+
+    pub fn divide(&self, scalar: T) -> Self {
+        let mut result = [T::default(); N];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] / scalar;
         }
         Vector(result)
     }
@@ -102,21 +118,6 @@ where
     }
 }
 
-impl<T, const N: usize> Neg for Vector<T, N>
-where
-    T: Neg<Output = T> + Copy + Default + Float,
-{
-    type Output = Self;
-
-    fn neg(self) -> Self::Output {
-        let mut result = [T::default(); N];
-        for (i, item) in result.iter_mut().enumerate().take(N) {
-            *item = -self.0[i];
-        }
-        Vector(result)
-    }
-}
-
 impl<T, const N: usize> Sub for Vector<T, N>
 where
     T: Sub<Output = T> + Copy + Default + Float,
@@ -129,6 +130,17 @@ where
             *item = self.0[i] - other.0[i];
         }
         Vector(result)
+    }
+}
+
+impl<T, const N: usize> SubAssign for Vector<T, N>
+where
+    T: Sub<Output = T> + Copy + Default + Float,
+{
+    fn sub_assign(&mut self, other: Self) {
+        for i in 0..N {
+            self.0[i] = self.0[i] - other.0[i];
+        }
     }
 }
 
@@ -155,6 +167,89 @@ where
         for i in 0..N {
             self.0[i] = self.0[i] * other.0[i];
         }
+    }
+}
+
+impl<T, const N: usize> Div for Vector<T, N>
+where
+    T: Div<Output = T> + Copy + Default + Float,
+{
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self::Output {
+        let mut result = [T::default(); N];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = self.0[i] / other.0[i];
+        }
+        Vector(result)
+    }
+}
+
+impl<T, const N: usize> DivAssign for Vector<T, N>
+where
+    T: Div<Output = T> + Copy + Default + Float,
+{
+    fn div_assign(&mut self, other: Self) {
+        for i in 0..N {
+            self.0[i] = self.0[i] / other.0[i];
+        }
+    }
+}
+
+impl<T, const N: usize> Neg for Vector<T, N>
+where
+    T: Neg<Output = T> + Copy + Default + Float,
+{
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        let mut result = [T::default(); N];
+        for (i, item) in result.iter_mut().enumerate().take(N) {
+            *item = -self.0[i];
+        }
+        Vector(result)
+    }
+}
+
+impl<T, const N: usize> PartialEq for Vector<T, N>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.0.iter().zip(other.0.iter()).all(|(a, b)| a == b)
+    }
+}
+
+impl<T, const N: usize> PartialOrd for Vector<T, N>
+where
+    T: PartialOrd,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.0
+            .iter()
+            .zip(other.0.iter())
+            .fold(Some(std::cmp::Ordering::Equal), |acc, (a, b)| {
+                if let Some(ord) = acc {
+                    if a < b {
+                        Some(std::cmp::Ordering::Less)
+                    } else if a > b {
+                        Some(std::cmp::Ordering::Greater)
+                    } else {
+                        Some(ord)
+                    }
+                } else {
+                    None
+                }
+            })
+    }
+}
+
+impl<T, const N: usize> Default for Vector<T, N>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Vector(core::array::from_fn(|_| T::default()))
     }
 }
 
@@ -211,7 +306,7 @@ impl<T> Vec4<T> {
     }
 }
 #[cfg(test)]
-mod tests {
+mod vector_tests {
     use super::*;
     use float_cmp::approx_eq;
 
@@ -319,5 +414,72 @@ mod tests {
         let v2 = Vector::new([4.0, 5.0, 6.0]);
         v1 *= v2;
         assert_eq!(v1.0, [4.0, 10.0, 18.0]);
+    }
+
+    #[test]
+    fn test_divide() {
+        let v = Vector::new([4.0, 8.0, 12.0]);
+        let divided = v.divide(2.0);
+        assert_eq!(divided.0, [2.0, 4.0, 6.0]);
+    }
+
+    #[test]
+    fn test_div() {
+        let v1 = Vector::new([4.0, 9.0, 16.0]);
+        let v2 = Vector::new([2.0, 3.0, 4.0]);
+        let result = v1 / v2;
+        assert_eq!(result.0, [2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn test_div_assign() {
+        let mut v1 = Vector::new([10.0, 20.0, 30.0]);
+        let v2 = Vector::new([2.0, 4.0, 5.0]);
+        v1 /= v2;
+        assert_eq!(v1.0, [5.0, 5.0, 6.0]);
+    }
+
+    #[test]
+    fn test_partial_eq_true() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([1.0, 2.0, 3.0]);
+        assert!(v1 == v2);
+    }
+
+    #[test]
+    fn test_partial_eq_false() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([1.0, 2.0, 4.0]);
+        assert!(v1 != v2);
+    }
+
+    #[test]
+    fn test_partial_ord_less() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([1.0, 2.0, 4.0]);
+        assert!(v1 < v2);
+    }
+
+    #[test]
+    fn test_partial_ord_greater() {
+        let v1 = Vector::new([2.0, 3.0, 4.0]);
+        let v2 = Vector::new([1.0, 2.0, 3.0]);
+        assert!(v1 > v2);
+    }
+
+    #[test]
+    fn test_eq() {
+        let v1 = Vector::new([5.0, 5.0, 5.0]);
+        let v2 = Vector::new([5.0, 5.0, 5.0]);
+        assert!(v1 == v2);
+        assert_eq!(v1, v2);
+    }
+
+    #[test]
+    fn test_ord() {
+        let v1 = Vector::new([1.0, 2.0, 3.0]);
+        let v2 = Vector::new([4.0, 5.0, 6.0]);
+        assert!(v1 < v2);
+        assert!(v2 > v1);
     }
 }

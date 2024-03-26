@@ -1,7 +1,7 @@
 use crate::{object::HitRecord, scene::FloatSize, utils::vector::Vec3};
 
 use super::Light;
-
+#[derive(Debug)]
 pub struct PointLight {
     position: Vec3<FloatSize>,
     color: Vec3<FloatSize>,

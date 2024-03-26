@@ -11,12 +11,14 @@ use crate::{
 
 pub type FloatSize = f64;
 
+#[derive(Debug)]
 pub struct Scene {
     pub objects: Vec<Box<dyn Hittable>>,
     pub lights: Vec<Box<dyn Light>>,
     pub skybox: Skybox,
     pub camera: Camera,
 }
+
 impl Scene {
     pub fn illuminate(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
         let mut illumination = Vec3::new([0.0, 0.0, 0.0]);

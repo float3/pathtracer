@@ -3,7 +3,8 @@ use crate::{material::Material, ray::Ray, scene::FloatSize, utils::vector::Vec3}
 pub mod plane;
 pub mod sphere;
 
-pub trait Hittable: Sync {
+// pub trait Hittable: Sync + Serialize + for<'a> Deserialize<'a> {
+pub trait Hittable: Sync + std::fmt::Debug {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord>;
 }
 #[derive(Debug)]

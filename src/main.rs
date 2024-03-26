@@ -46,7 +46,9 @@ fn main() {
                 // 0.1,
                 // 100.0,
             ),
-            skybox: Vec3::new([1.0, 1.0, 1.0]),
+            skybox: pathtracer::skybox::Skybox {
+                color: Vec3::new([1.0, 1.0, 1.0]),
+            },
         };
 
         let pathtracer = PathTracer::new(WIDTH, HEIGHT, SAMPLE_COUNT);
