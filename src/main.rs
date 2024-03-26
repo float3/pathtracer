@@ -21,8 +21,32 @@ fn main() {
                     Vec3::new([0.0, 1.5, 0.0]),
                     1.0,
                     Material {
-                        albedo: Vec3::new([1.0, 0.0, 0.0]),
+                        albedo: Vec3::new([0.0, 0.0, 0.0]),
                         reflectivity: 1.0,
+                    },
+                )),
+                Box::new(Sphere::new(
+                    Vec3::new([2.0, 1.0, 0.0]),
+                    1.0,
+                    Material {
+                        albedo: Vec3::new([1.0, 0.0, 0.0]),
+                        reflectivity: 0.0,
+                    },
+                )),
+                Box::new(Sphere::new(
+                    Vec3::new([-2.0, 1.0, 0.0]),
+                    1.0,
+                    Material {
+                        albedo: Vec3::new([1.0, 0.0, 0.0]),
+                        reflectivity: 0.0,
+                    },
+                )),
+                Box::new(Sphere::new(
+                    Vec3::new([0.0, 2000.0, 100.0]),
+                    900.0,
+                    Material {
+                        albedo: Vec3::new([1.0, 0.0, 0.0]),
+                        reflectivity: 0.0,
                     },
                 )),
                 Box::new(Quad::new(
@@ -35,6 +59,16 @@ fn main() {
                         reflectivity: 0.0,
                     },
                 )),
+                // Box::new(Quad::new(
+                //     Vec3::new([1.0, 3.0, 1.0]),
+                //     Vec3::new([-1.0, 3.0, 1.0]),
+                //     Vec3::new([-1.0, 3.0, -1.0]),
+                //     Vec3::new([1.0, 3.0, -1.0]),
+                //     Material {
+                //         albedo: Vec3::new([1.0, 1.0, 1.0]),
+                //         reflectivity: 0.0,
+                //     },
+                // )),
                 // Box::new(Plane::new(
                 //     Vec3::new([0.0, 0.0, 0.0]),
                 //     Vec3::new([0.0, 1.0, 0.0]),
