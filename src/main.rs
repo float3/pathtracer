@@ -8,9 +8,10 @@ use pathtracer::{
     utils::vector::Vec3,
 };
 
-const WIDTH: usize = 640;
-const HEIGHT: usize = 360;
-const SAMPLE_COUNT: usize = 256 * 2;
+const MULTIPLIER: usize = 2;
+const WIDTH: usize = 640 * MULTIPLIER;
+const HEIGHT: usize = 360 * MULTIPLIER;
+const SAMPLE_COUNT: usize = 256 * MULTIPLIER;
 fn main() {
     let buffer = {
         let scene = Scene {
@@ -80,7 +81,7 @@ fn main() {
         Err(e) => eprintln!("Error writing image: {}", e),
     }
 
-    let mut window = Window::new(
+    let mut window = match Window::new(
         "Test Window",
         WIDTH,
         HEIGHT,
@@ -88,10 +89,13 @@ fn main() {
             scale: Scale::X2,
             ..WindowOptions::default()
         },
-    )
-    .unwrap_or_else(|e| {
-        panic!("{}", e);
-    });
+    ) {
+        Ok(window) => window,
+        Err(e) => {
+            eprintln!("Error creating window: {}", e);
+            return;
+        }
+    };
 
     let packed_buffer = buffer
         .iter()
@@ -104,9 +108,13 @@ fn main() {
         })
         .collect::<Vec<u32>>();
 
-    window
-        .update_with_buffer(&packed_buffer, WIDTH, HEIGHT)
-        .unwrap();
+    match window.update_with_buffer(&packed_buffer, WIDTH, HEIGHT) {
+        Ok(_) => println!("Window updated"),
+        Err(e) => {
+            eprintln!("Error updating window: {}", e);
+            return;
+        }
+    }
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
