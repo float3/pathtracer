@@ -68,7 +68,7 @@ fn main() {
     };
 
     let mut encoder = png::Encoder::new(
-        std::fs::File::create("output.png").unwrap(),
+        std::fs::File::create("cornell_box.png").unwrap(),
         WIDTH as u32,
         HEIGHT as u32,
     );
