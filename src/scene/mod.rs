@@ -81,12 +81,9 @@ impl Scene {
                 if reflectivity > 0.0 {
                     let reflected_direction =
                         Material::reflect(&ray.direction.normalize(), &hit_record.normal);
-                    let new_ray = Ray::new(
-                        hit_record.point + reflected_direction.scale(1e-4),
-                        reflected_direction,
-                    ); // Offset the starting point to avoid self-intersection
-                    let color = self.trace_ray(&new_ray, depth + 1, rand_state, is_left); // Assuming trace_ray returns a color value, not a reference
-                    return color.scale(reflectivity); // Assuming `color.scale()` correctly scales the color by reflectivity and returns a new color value
+                    let new_ray = Ray::new(hit_record.point, reflected_direction);
+                    let color = &self.trace_ray(&new_ray, depth + 1, rand_state, is_left);
+                    return color.scale(reflectivity);
                 }
             } else {
                 return emitted + (throughput * self.skybox.color);
