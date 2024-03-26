@@ -8,8 +8,8 @@ use pathtracer::{
     utils::vector::Vec3,
 };
 
-const WIDTH: usize = 640 * 2;
-const HEIGHT: usize = 360 * 2;
+const WIDTH: usize = 640;
+const HEIGHT: usize = 360;
 const SAMPLE_COUNT: usize = 256 * 2;
 fn main() {
     let buffer = {
