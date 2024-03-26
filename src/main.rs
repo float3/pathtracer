@@ -19,7 +19,7 @@ fn main() {
                     Vec3::new([0.0, 1.0, 0.0]),
                     1.0,
                     Material {
-                        albedo: Vec3::new([1.0, 0.0, 0.0]),
+                        albedo: Vec3::new([1.5, 0.0, 0.0]),
                         reflectivity: 1.0,
                     },
                 )),
@@ -27,8 +27,8 @@ fn main() {
                     Vec3::new([0.0, 0.0, 0.0]),
                     Vec3::new([0.0, 1.0, 0.0]),
                     Material {
-                        albedo: Vec3::new([0.0, 0.0, 1.0]),
-                        reflectivity: 0.0,
+                        albedo: Vec3::new([1.0, 1.0, 1.0]),
+                        reflectivity: 1.0,
                     },
                 )),
             ],

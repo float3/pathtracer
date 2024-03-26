@@ -28,7 +28,27 @@ fn generate_coordinate_system(normal: &Vec3<FloatSize>) -> (Vec3<FloatSize>, Vec
     (u, v)
 }
 
-fn cosine_weighted_sample(normal: &Vec3<FloatSize>, rand_state: &mut ThreadRng) -> Vec3<FloatSize> {
+fn cosine_weighted_sample_2(
+    normal: &Vec3<FloatSize>,
+    rand_state: &mut ThreadRng,
+) -> Vec3<FloatSize> {
+    let (v, u) = generate_coordinate_system(normal);
+    let r1: FloatSize = rand_state.gen_range(0.0..1.0);
+    let r2: FloatSize = rand_state.gen_range(0.0..1.0);
+    let theta = r1.sqrt().acos();
+    let phi = r2 * 2.0 * std::f64::consts::PI as FloatSize;
+    let a = Vec3::new([phi.sin() * theta.cos(), phi.cos(), phi.sin() * theta.sin()]);
+    Vec3::new([
+        a.x() * u.x() + a.y() * normal.x() + a.z() * v.x(),
+        a.x() * u.y() + a.y() * normal.y() + a.z() * v.y(),
+        a.x() * u.z() + a.y() * normal.z() + a.z() * v.z(),
+    ])
+}
+
+fn cosine_weighted_sample_1(
+    normal: &Vec3<FloatSize>,
+    rand_state: &mut ThreadRng,
+) -> Vec3<FloatSize> {
     let (v, u) = generate_coordinate_system(normal);
     let r1: FloatSize = rand_state.gen_range(0.0..1.0);
     let r2: FloatSize = rand_state.gen_range(0.0..1.0);
@@ -49,23 +69,21 @@ fn cosine_weighted_sample(normal: &Vec3<FloatSize>, rand_state: &mut ThreadRng) 
 }
 
 impl Material {
-    pub fn scatter(&self, ray: &Ray, hit_record: &HitRecord, rand_state: &mut ThreadRng) -> Ray {
-        // let reflected = Self::reflect(&ray.direction.normalize(), &hit_record.normal);
-        // let scatter_direction = reflected + Material::random_unit_vector().scale(self.reflectivity);
-
-        // let scatter_direction = if scatter_direction.near_zero() {
-        //     hit_record.normal
-        // } else {
-        //     scatter_direction
-        // };
-        // Ray {
-        //     origin: hit_record.point,
-        //     direction: scatter_direction,
-        // }
-        let random = cosine_weighted_sample(&hit_record.normal, rand_state);
-        // if random.dot(&hit_record.normal) < 0.0 {
-        //     random = random.scale(-1.0);
-        // }
+    pub fn scatter(
+        &self,
+        ray: &Ray,
+        hit_record: &HitRecord,
+        rand_state: &mut ThreadRng,
+        is_left: bool,
+    ) -> Ray {
+        let mut random = if is_left {
+            cosine_weighted_sample_1(&hit_record.normal, rand_state)
+        } else {
+            cosine_weighted_sample_2(&hit_record.normal, rand_state)
+        };
+        if random.dot(&hit_record.normal) < 0.0 {
+            random = random.scale(-1.0);
+        }
 
         Ray {
             origin: hit_record.point + random.scale(0.001),

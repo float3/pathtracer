@@ -33,7 +33,8 @@ impl PathTracer {
                             self.height as FloatSize,
                             &mut rand_state,
                         );
-                        let color = scene.trace_ray(&ray, 10, &mut rand_state);
+                        let is_left = x < self.width / 2;
+                        let color = scene.trace_ray(&ray, 10, &mut rand_state, is_left);
                         row[x] += color.scale(1.0 / self.samples as FloatSize);
                     });
                 });

@@ -40,14 +40,22 @@ impl Scene {
         hit_record
     }
 
-    pub fn trace_ray(&self, ray: &Ray, depth: u32, rand_state: &mut ThreadRng) -> Vec3<FloatSize> {
+    pub fn trace_ray(
+        &self,
+        ray: &Ray,
+        depth: u32,
+        rand_state: &mut ThreadRng,
+        is_left: bool,
+    ) -> Vec3<FloatSize> {
         let mut throughput = Vec3::new([1.0, 1.0, 1.0]);
         let mut ray: Ray = *ray;
         for _bounce in 0..depth {
             if let Some(hit_record) = self.hit(&ray, 0.001) {
                 let color: Vec3<FloatSize> = self.illuminate(&hit_record);
 
-                ray = hit_record.material.scatter(&ray, &hit_record, rand_state);
+                ray = hit_record
+                    .material
+                    .scatter(&ray, &hit_record, rand_state, is_left);
 
                 let brdf = hit_record
                     .material
