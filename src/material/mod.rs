@@ -6,6 +6,7 @@ use rand::prelude::*;
 pub struct Material {
     pub albedo: Vec3<FloatSize>,
     pub reflectivity: FloatSize,
+    pub checkered: bool,
 }
 
 fn random_unit_vector(rand_state: &mut ThreadRng) -> Vec3<FloatSize> {
@@ -76,9 +77,9 @@ impl Material {
         is_left: bool,
     ) -> Ray {
         let mut random = if is_left {
-            cosine_weighted_sample_1(&hit_record.normal, rand_state)
-        } else {
             cosine_weighted_sample_2(&hit_record.normal, rand_state)
+        } else {
+            cosine_weighted_sample_1(&hit_record.normal, rand_state)
             // random_unit_vector(rand_state)
         };
         if random.dot(&hit_record.normal) < 0.0 {
@@ -92,18 +93,22 @@ impl Material {
     }
 
     pub fn color(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
-        match hit_record.uv {
-            Some(uv) => {
-                let u = uv.x();
-                let v = uv.y();
-                // checkered pattern
-                if (((u * 10.0).floor() as i32) + ((v * 10.0).floor() as i32)) % 2 == 0 {
-                    Vec3::new([0.0, 0.0, 0.0])
-                } else {
-                    Vec3::new([1.0, 1.0, 1.0])
+        if self.checkered {
+            match hit_record.uv {
+                Some(uv) => {
+                    let u = uv.x();
+                    let v = uv.y();
+                    // checkered pattern
+                    if (((u * 10.0).floor() as i32) + ((v * 10.0).floor() as i32)) % 2 == 0 {
+                        Vec3::new([0.0, 0.0, 0.0])
+                    } else {
+                        Vec3::new([1.0, 1.0, 1.0])
+                    }
                 }
+                None => self.albedo,
             }
-            None => self.albedo,
+        } else {
+            self.albedo
         }
     }
 
@@ -115,6 +120,7 @@ impl Material {
         Material {
             albedo: Vec3::new([1.0, 1.0, 1.0]),
             reflectivity: 1.0,
+            checkered: false,
         }
     }
 
@@ -122,6 +128,7 @@ impl Material {
         Material {
             albedo: Vec3::new([1.0, 0.0, 0.0]),
             reflectivity: 0.0,
+            checkered: false,
         }
     }
 
@@ -129,6 +136,7 @@ impl Material {
         Material {
             albedo: Vec3::new([0.0, 1.0, 0.0]),
             reflectivity: 0.0,
+            checkered: false,
         }
     }
 
@@ -136,6 +144,7 @@ impl Material {
         Material {
             albedo: Vec3::new([0.0, 0.0, 1.0]),
             reflectivity: 0.0,
+            checkered: false,
         }
     }
 
@@ -143,6 +152,15 @@ impl Material {
         Material {
             albedo: Vec3::new([1.0, 1.0, 1.0]),
             reflectivity: 0.0,
+            checkered: false,
+        }
+    }
+
+    pub fn checkered() -> Material {
+        Material {
+            albedo: Vec3::new([1.0, 1.0, 1.0]),
+            reflectivity: 0.0,
+            checkered: true,
         }
     }
 
@@ -150,6 +168,7 @@ impl Material {
         Material {
             albedo: Vec3::new([0.0, 0.0, 0.0]),
             reflectivity: 0.0,
+            checkered: false,
         }
     }
 }

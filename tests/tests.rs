@@ -1,10 +1,9 @@
 // trace the cornell box and write it to conrell_box.png
 extern crate pathtracer;
 
-const MULTIPLIER: usize = 2;
-const WIDTH: usize = 640 * MULTIPLIER;
-const HEIGHT: usize = 360 * MULTIPLIER;
-const SAMPLE_COUNT: usize = 256 * MULTIPLIER;
+const WIDTH: usize = 640;
+const HEIGHT: usize = 360;
+const SAMPLE_COUNT: usize = 1;
 #[cfg(test)]
 #[test]
 fn cornell_box() {

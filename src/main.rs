@@ -42,7 +42,7 @@ fn main() {
                     Vec3::new([1.0, 0.0, -1.0]),
                     Vec3::new([-1.0, 0.0, -1.0]),
                     Vec3::new([-1.0, 0.0, 1.0]),
-                    Material::white(),
+                    Material::checkered(),
                 )),
             ],
             lights: vec![Box::new(PointLight::new(
@@ -68,7 +68,7 @@ fn main() {
     };
 
     let mut encoder = png::Encoder::new(
-        std::fs::File::create("cornell_box.png").unwrap(),
+        std::fs::File::create("output.png").unwrap(),
         WIDTH as u32,
         HEIGHT as u32,
     );

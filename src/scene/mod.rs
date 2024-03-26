@@ -114,49 +114,49 @@ impl Scene {
 
         // Floor
         objects.push(Box::new(Quad::new(
-            Vec3::new([-1.0, 0.0, -1.0]),
-            Vec3::new([1.0, 0.0, -1.0]),
             Vec3::new([1.0, 0.0, 1.0]),
+            Vec3::new([1.0, 0.0, -1.0]),
+            Vec3::new([-1.0, 0.0, -1.0]),
             Vec3::new([-1.0, 0.0, 1.0]),
             Material::white(),
         )));
         // Ceiling
-        objects.push(Box::new(Quad::new(
-            Vec3::new([-1.0, 2.0, -1.0]),
-            Vec3::new([1.0, 2.0, -1.0]),
-            Vec3::new([1.0, 2.0, 1.0]),
-            Vec3::new([-1.0, 2.0, 1.0]),
-            Material::white(),
-        )));
-        // Back wall
-        objects.push(Box::new(Quad::new(
-            Vec3::new([-1.0, 0.0, -1.0]),
-            Vec3::new([1.0, 0.0, -1.0]),
-            Vec3::new([1.0, 2.0, -1.0]),
-            Vec3::new([-1.0, 2.0, -1.0]),
-            Material::white(),
-        )));
-        // Right wall (Green)
-        objects.push(Box::new(Quad::new(
-            Vec3::new([1.0, 0.0, -1.0]),
-            Vec3::new([1.0, 0.0, 1.0]),
-            Vec3::new([1.0, 2.0, 1.0]),
-            Vec3::new([1.0, 2.0, -1.0]),
-            Material::green(),
-        )));
-        // Left wall (Red)
-        objects.push(Box::new(Quad::new(
-            Vec3::new([-1.0, 0.0, -1.0]),
-            Vec3::new([-1.0, 0.0, 1.0]),
-            Vec3::new([-1.0, 2.0, 1.0]),
-            Vec3::new([-1.0, 2.0, -1.0]),
-            Material::red(),
-        )));
-
-        // lights.push(Box::new(PointLight::new(
-        //     Vec3::new([0.0, 1.9, 0.0]),
-        //     Vec3::new([15.0, 15.0, 15.0]),
+        // objects.push(Box::new(Quad::new(
+        //     Vec3::new([1.0, 2.0, 1.0]),
+        //     Vec3::new([1.0, 2.0, -1.0]),
+        //     Vec3::new([-1.0, 2.0, -1.0]),
+        //     Vec3::new([-1.0, 2.0, 1.0]),
+        //     Material::white(),
         // )));
+        // // Back wall
+        objects.push(Box::new(Quad::new(
+            Vec3::new([-1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 0.0, -1.0]),
+            Vec3::new([1.0, 2.0, -1.0]),
+            Vec3::new([-1.0, 2.0, -1.0]),
+            Material::white(),
+        )));
+        // // Right wall (Green)
+        // objects.push(Box::new(Quad::new(
+        //     Vec3::new([1.0, 0.0, -1.0]),
+        //     Vec3::new([1.0, 0.0, 1.0]),
+        //     Vec3::new([1.0, 2.0, 1.0]),
+        //     Vec3::new([1.0, 2.0, -1.0]),
+        //     Material::green(),
+        // )));
+        // // Left wall (Red)
+        // objects.push(Box::new(Quad::new(
+        //     Vec3::new([-1.0, 0.0, -1.0]),
+        //     Vec3::new([-1.0, 0.0, 1.0]),
+        //     Vec3::new([-1.0, 2.0, 1.0]),
+        //     Vec3::new([-1.0, 2.0, -1.0]),
+        //     Material::red(),
+        // )));
+
+        lights.push(Box::new(PointLight::new(
+            Vec3::new([0.0, 1.9, 0.0]),
+            Vec3::new([15.0, 15.0, 15.0]),
+        )));
 
         let camera = Camera::new(Vec3::new([0.0, 1.0, 3.0]), Vec3::new([0.0, 0.0, -1.0]));
         let skybox = Skybox {
