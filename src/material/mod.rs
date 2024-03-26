@@ -37,7 +37,7 @@ fn cosine_weighted_sample_1(
     let r1: FloatSize = rand_state.gen_range(0.0..1.0);
     let r2: FloatSize = rand_state.gen_range(0.0..1.0);
 
-    let phi = 2.0 * std::f64::consts::PI * r1;
+    let phi = 2.0 * std::f64::consts::PI as FloatSize * r1;
     let r = r2.sqrt();
     let x = r * phi.cos();
     // let y = (1.0 - x * x - y * y).sqrt();
