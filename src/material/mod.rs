@@ -91,6 +91,22 @@ impl Material {
         }
     }
 
+    pub fn color(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
+        match hit_record.uv {
+            Some(uv) => {
+                let u = uv.x();
+                let v = uv.y();
+                // checkered pattern
+                if (((u * 10.0).floor() as i32) + ((v * 10.0).floor() as i32)) % 2 == 0 {
+                    Vec3::new([0.0, 0.0, 0.0])
+                } else {
+                    Vec3::new([1.0, 1.0, 1.0])
+                }
+            }
+            None => self.albedo,
+        }
+    }
+
     pub fn reflect(v: &Vec3<FloatSize>, n: &Vec3<FloatSize>) -> Vec3<FloatSize> {
         *v - n.scale(2.0 * v.dot(n))
     }

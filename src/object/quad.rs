@@ -37,10 +37,17 @@ impl Quad {
 impl Hittable for Quad {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
         let normal = (self.b - self.a).cross(&(self.c - self.a)).normalize();
-        let t = (self.a - ray.origin).dot(&normal) / ray.direction.dot(&normal);
+        let denom = ray.direction.dot(&normal);
+
+        if denom.abs() < 1e-8 {
+            return None;
+        }
+
+        let t = (self.a - ray.origin).dot(&normal) / denom;
         if t < t_min || t > t_max {
             return None;
         }
+
         let point = ray.at(t);
         let p = point - self.a;
         let ab = self.b - self.a;
@@ -49,11 +56,13 @@ impl Hittable for Quad {
         let area_pbc = p.cross(&ac).length();
         let area_pca = ab.cross(&p).length();
 
+        // Use barycentric coordinates to interpolate u, v
         let u = area_pbc / area_abc;
         let v = area_pca / area_abc;
 
         let front_face = ray.direction.dot(&normal) < 0.0;
         let normal = if front_face { normal } else { -normal };
+
         Some(HitRecord {
             point,
             normal,
