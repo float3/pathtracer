@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use ::pathtracer::{pathtracer::PathTracer, scene::Scene};
 use pathtracer::scene::FloatSize;
 
@@ -11,11 +9,29 @@ const WIDTH: usize = 640 * MULTIPLIER;
 const HEIGHT: usize = 360 * MULTIPLIER;
 const SAMPLE_COUNT: usize = 256 * MULTIPLIER;
 
+use std::env;
+use std::fs;
+
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let pathtracer = PathTracer::new(WIDTH, HEIGHT, SAMPLE_COUNT);
 
-    trace_scene_file("scene.toml", "output.png", &pathtracer);
-    trace_scene_file("cornell_box.toml", "cornell_box.png", &pathtracer);
+    match args.len() {
+        1 => {
+            trace_scene_file("scene.toml", "output.png", &pathtracer);
+        }
+        2 if args[1] == "--all" => {
+            trace_all_scenes(&pathtracer);
+        }
+        2 => {
+            let scene_file = &args[1];
+            let output_file = format!("{}.png", scene_file.trim_end_matches(".toml"));
+            trace_scene_file(scene_file, &output_file, &pathtracer);
+        }
+        _ => {
+            println!("Usage: program_name [scene_file.toml] or --all");
+        }
+    }
 }
 
 fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer) {
@@ -51,4 +67,25 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
 
     let tail = ITXtChunk::new("scene", &toml_str);
     writer.write_text_chunk(&tail).unwrap();
+}
+
+fn trace_all_scenes(pathtracer: &PathTracer) {
+    let entries = fs::read_dir(".").unwrap_or_else(|err| {
+        panic!("Failed to read directory: {}", err);
+    });
+
+    for entry in entries {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        if path.is_file() {
+            if let Some(ext) = path.extension() {
+                if ext == "toml" && path.file_name().unwrap() != "Cargo.toml" {
+                    let scene_file = path.to_str().unwrap();
+                    let output_file =
+                        format!("{}.png", path.file_stem().unwrap().to_str().unwrap());
+                    trace_scene_file(scene_file, &output_file, pathtracer);
+                }
+            }
+        }
+    }
 }
