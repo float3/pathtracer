@@ -14,17 +14,17 @@ pub enum ObjectType {
     Sphere,
     Quad,
     Plane,
-    Box,
+    Cube,
 }
 
 impl ObjectType {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn from_str(s: &str) -> Self {
         match s {
-            "sphere" => Some(Self::Sphere),
-            "quad" => Some(Self::Quad),
-            "plane" => Some(Self::Plane),
-            "box" => Some(Self::Box),
-            _ => None,
+            "sphere" => Self::Sphere,
+            "quad" => Self::Quad,
+            "plane" => Self::Plane,
+            "cube" => Self::Cube,
+            _ => panic!("Unknown object type: {}", s),
         }
     }
 }

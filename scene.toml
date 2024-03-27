@@ -8,13 +8,19 @@ material = "reflective"
 type = "sphere"
 position = [2.0, 1.0, 0.0]
 radius = 1.0
-material = "red"
+material = "white"
+
+# [[objects]]
+# type = "sphere"
+# position = [-2.0, 1.0, 0.0]
+# radius = 1.0
+# material = "red"
 
 [[objects]]
-type = "sphere"
-position = [-2.0, 1.0, 0.0]
-radius = 1.0
-material = "red"
+type = "cube"
+min = [-2.5, 0.0, -1.0]
+max = [-1.0, 1.5, 1.0]
+material = "blue"
 
 [[objects]]
 type = "sphere"

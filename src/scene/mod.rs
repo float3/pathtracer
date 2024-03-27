@@ -5,7 +5,7 @@ use crate::{
     camera::Camera,
     light::{pointlight::PointLight, Light},
     material::Material,
-    object::{quad::Quad, HitRecord, Hittable},
+    object::{quad::Quad, HitRecord, Hittable, ObjectType},
     ray::Ray,
     skybox::Skybox,
     utils::vector::Vec3,
@@ -187,8 +187,15 @@ impl Scene {
         for object in toml["objects"].as_array().unwrap() {
             let object_type = object["type"].as_str().unwrap();
             let material = Material::from_toml(&object["material"]);
-            match object_type {
-                "quad" => {
+            match ObjectType::from_str(object_type) {
+                ObjectType::Sphere => {
+                    objects.push(Box::new(crate::object::sphere::Sphere::new(
+                        Vec3::from_toml(&object["position"]),
+                        object["radius"].as_float().unwrap(),
+                        material,
+                    )));
+                }
+                ObjectType::Quad => {
                     objects.push(Box::new(Quad::new(
                         Vec3::from_toml(&object["point1"]),
                         Vec3::from_toml(&object["point2"]),
@@ -197,21 +204,20 @@ impl Scene {
                         material,
                     )));
                 }
-                "sphere" => {
-                    objects.push(Box::new(crate::object::sphere::Sphere::new(
-                        Vec3::from_toml(&object["position"]),
-                        object["radius"].as_float().unwrap(),
-                        material,
-                    )));
-                }
-                "plane" => {
+                ObjectType::Plane => {
                     objects.push(Box::new(crate::object::plane::Plane::new(
                         Vec3::from_toml(&object["point"]),
                         Vec3::from_toml(&object["normal"]),
                         material,
                     )));
                 }
-                _ => panic!("Unknown object type: {}", object_type),
+                ObjectType::Cube => {
+                    objects.push(Box::new(crate::object::cube::Cube::new(
+                        Vec3::from_toml(&object["min"]),
+                        Vec3::from_toml(&object["max"]),
+                        material,
+                    )));
+                }
             }
         }
 
