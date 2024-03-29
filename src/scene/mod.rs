@@ -54,6 +54,7 @@ impl Scene {
         let mut emitted = Vec3::new([0.0, 0.0, 0.0]);
         for _bounce in 0..depth {
             if let Some(hit_record) = self.hit(&ray, 0.001) {
+                // return hit_record.material.color(&hit_record.uv);
                 if hit_record.material.reflectivity == 1.0 {
                     let reflected =
                         Material::reflect(&ray.direction.normalize(), &hit_record.normal);
@@ -68,7 +69,7 @@ impl Scene {
 
                     let brdf = hit_record
                         .material
-                        .color(&hit_record)
+                        .color(&hit_record.uv)
                         .scale(1.0 as FloatSize / std::f64::consts::PI as FloatSize);
 
                     let cos_theta = ray.direction.dot(&hit_record.normal);
@@ -106,7 +107,10 @@ impl Scene {
                 return Vec3::new([0.0, 0.0, 0.0]);
             }
         }
-        light.color()
+        return light.color();
+        // Apply inverse square falloff
+        let falloff = 1.0 / (distance_to_light * distance_to_light);
+        light.color().scale(falloff)
     }
 
     pub fn cornell_box() -> Self {

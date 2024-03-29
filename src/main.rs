@@ -29,7 +29,7 @@ fn main() {
             trace_scene_file(scene_file, &output_file, &pathtracer);
         }
         _ => {
-            println!("Usage: program_name [scene_file.toml] or --all");
+            println!("Usage: pathtracer [scene_file.toml] or --all");
         }
     }
 }
@@ -81,8 +81,11 @@ fn trace_all_scenes(pathtracer: &PathTracer) {
             if let Some(ext) = path.extension() {
                 if ext == "toml" && path.file_name().unwrap() != "Cargo.toml" {
                     let scene_file = path.to_str().unwrap();
-                    let output_file =
-                        format!("{}.png", path.file_stem().unwrap().to_str().unwrap());
+                    let output_file = if path.file_name().unwrap() != "scene.toml" {
+                        format!("{}.png", path.file_stem().unwrap().to_str().unwrap())
+                    } else {
+                        "output.png".to_string()
+                    };
                     trace_scene_file(scene_file, &output_file, pathtracer);
                 }
             }

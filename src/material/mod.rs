@@ -1,4 +1,9 @@
-use crate::{object::HitRecord, ray::Ray, scene::FloatSize, utils::vector::Vec3};
+use crate::{
+    object::HitRecord,
+    ray::Ray,
+    scene::FloatSize,
+    utils::vector::{Vec2, Vec3},
+};
 
 use rand::prelude::*;
 
@@ -92,12 +97,14 @@ impl Material {
         }
     }
 
-    pub fn color(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
+    pub fn color(&self, uv: &Option<Vec2<FloatSize>>) -> Vec3<FloatSize> {
         if self.checkered {
-            match hit_record.uv {
+            match uv {
                 Some(uv) => {
                     let u = uv.x();
                     let v = uv.y();
+
+                    // return Vec3::new([*u, *v, 0.0]);
                     // checkered pattern
                     if (((u * 10.0).floor() as i32) + ((v * 10.0).floor() as i32)) % 2 == 0 {
                         Vec3::new([0.0, 0.0, 0.0])

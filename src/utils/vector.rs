@@ -87,7 +87,15 @@ where
             .expect("Expected an array")
             .iter()
             .map(|v| {
-                let num = v.as_float().expect("Expected a floating-point number");
+                let num = match v.as_float() {
+                    Some(num) => num,
+                    None => v
+                        .as_integer()
+                        .expect("Expected a number")
+                        .to_string()
+                        .parse::<f64>()
+                        .expect("Conversion failed"),
+                };
                 T::from_f64(num).expect("Conversion failed")
             })
             .collect::<Vec<T>>();
