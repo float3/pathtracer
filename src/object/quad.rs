@@ -49,19 +49,19 @@ impl Hittable for Quad {
         }
 
         let point = ray.at(t);
-        let p = point - self.a;
-        let ab = self.b - self.a;
-        let ac = self.c - self.a;
-        let area_abc = ab.cross(&ac).length();
-        let area_pbc = p.cross(&ac).length();
-        let area_pca = ab.cross(&p).length();
-
-        // Use barycentric coordinates to interpolate u, v
-        let u = area_pbc / area_abc;
-        let v = area_pca / area_abc;
-
         let front_face = ray.direction.dot(&normal) < 0.0;
         let normal = if front_face { normal } else { -normal };
+
+        let ad = self.d - self.a;
+        let ap = point - self.a;
+        let u = ad.dot(&ap) / ad.length_squared();
+        let ab = self.b - self.a;
+        let bp = point - self.b;
+        let v = ab.dot(&bp) / ab.length_squared();
+
+        // if u < 0.0 || u > 1.0 || v < 0.0 || v > 1.0 {
+        //     return None;
+        // }
 
         Some(HitRecord {
             point,
