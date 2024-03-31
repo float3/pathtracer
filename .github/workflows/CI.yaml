@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - dev
   workflow_dispatch:
 
 permissions:
@@ -15,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  render:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -43,4 +42,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git add -A
           git commit -m "render"
-          git push || echo "No changes to commit"
+          git push
