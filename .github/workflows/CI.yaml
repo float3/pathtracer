@@ -12,6 +12,7 @@ permissions:
 
 concurrency:
   group: "render"
+  cancel-in-progress: true
 
 jobs:
   deploy:
