@@ -1,17 +1,20 @@
-use ::pathtracer::{pathtracer::PathTracer, scene::Scene};
-use pathtracer::scene::FloatSize;
+use pathtracer::{
+    pathtracer::PathTracer,
+    scene::{FloatSize, Scene},
+    utils::vector::Vector,
+};
 
-use png::text_metadata::ITXtChunk;
+use png::{text_metadata::ITXtChunk, BitDepth, ColorType, Encoder};
 use toml::Value;
 
 use std::env;
-use std::fs;
+use std::fs::{self, File};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let (multiplier, args_offset) = if args.len() > 1 && args[1].starts_with("--multiplier=") {
-        let multiplier_str = &args[1]["--multiplier=".len()..];
+        let multiplier_str: &str = &args[1]["--multiplier=".len()..];
         let multiplier: usize = multiplier_str
             .parse()
             .expect("Multiplier must be a positive integer");
@@ -20,9 +23,9 @@ fn main() {
         (1, 1)
     };
 
-    let width = 1280 * multiplier;
-    let height = 720 * multiplier;
-    let sample_count = 256 * multiplier;
+    let width: usize = 1280 * multiplier;
+    let height: usize = 720 * multiplier;
+    let sample_count: usize = 256 * multiplier;
 
     let pathtracer = PathTracer::new(width, height, sample_count);
 
@@ -45,20 +48,20 @@ fn main() {
 }
 
 fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer) {
-    let toml_str = std::fs::read_to_string(scene_file).expect("Failed to read scene.toml");
-    let value = toml::from_str::<Value>(&toml_str).expect("Failed to parse TOML file");
-    let buffer = {
+    let toml_str: String = fs::read_to_string(scene_file).expect("Failed to read scene.toml");
+    let value: Value = toml::from_str::<Value>(&toml_str).expect("Failed to parse TOML file");
+    let buffer: Vec<Vector<f64, 3>> = {
         let scene = Scene::from_toml(&value);
         pathtracer.trace(&scene)
     };
 
-    let mut encoder = png::Encoder::new(
-        std::fs::File::create(output_file).unwrap(),
+    let mut encoder = Encoder::new(
+        File::create(output_file).unwrap(),
         pathtracer.width as u32,
         pathtracer.height as u32,
     );
-    encoder.set_color(png::ColorType::Rgb);
-    encoder.set_depth(png::BitDepth::Eight);
+    encoder.set_color(ColorType::Rgb);
+    encoder.set_depth(BitDepth::Eight);
 
     let mut writer = encoder.write_header().unwrap();
 
