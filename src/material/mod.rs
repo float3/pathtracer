@@ -1,7 +1,7 @@
 use crate::{
     object::HitRecord,
     ray::Ray,
-    scene::FloatSize,
+    scene::{FloatSize, RNGType},
     utils::vector::{Vec2, Vec3},
 };
 
@@ -15,7 +15,7 @@ pub struct Material {
 }
 
 #[allow(dead_code)]
-fn random_unit_vector(rand_state: &mut ThreadRng) -> Vec3<FloatSize> {
+fn random_unit_vector(rand_state: &mut RNGType) -> Vec3<FloatSize> {
     let theta: FloatSize = rand_state.gen_range(0.0..(2.0 * std::f64::consts::PI as FloatSize));
     let phi_cos: FloatSize = rand_state.gen_range(-1.0..=1.0);
     let phi_sin: FloatSize = (1.0 - phi_cos * phi_cos).sqrt();
@@ -35,10 +35,7 @@ fn generate_coordinate_system(normal: &Vec3<FloatSize>) -> (Vec3<FloatSize>, Vec
     (u, v)
 }
 
-fn cosine_weighted_sample_1(
-    normal: &Vec3<FloatSize>,
-    rand_state: &mut ThreadRng,
-) -> Vec3<FloatSize> {
+fn cosine_weighted_sample_1(normal: &Vec3<FloatSize>, rand_state: &mut RNGType) -> Vec3<FloatSize> {
     let (v, u) = generate_coordinate_system(normal);
     let r1: FloatSize = rand_state.gen_range(0.0..1.0);
     let r2: FloatSize = rand_state.gen_range(0.0..1.0);
@@ -58,10 +55,7 @@ fn cosine_weighted_sample_1(
     ])
 }
 
-fn cosine_weighted_sample_2(
-    normal: &Vec3<FloatSize>,
-    rand_state: &mut ThreadRng,
-) -> Vec3<FloatSize> {
+fn cosine_weighted_sample_2(normal: &Vec3<FloatSize>, rand_state: &mut RNGType) -> Vec3<FloatSize> {
     let (v, u) = generate_coordinate_system(normal);
     let r1: FloatSize = rand_state.gen_range(0.0..1.0);
     let r2: FloatSize = rand_state.gen_range(0.0..1.0);
@@ -76,12 +70,7 @@ fn cosine_weighted_sample_2(
 }
 
 impl Material {
-    pub fn scatter(
-        &self,
-        hit_record: &HitRecord,
-        rand_state: &mut ThreadRng,
-        is_left: bool,
-    ) -> Ray {
+    pub fn scatter(&self, hit_record: &HitRecord, rand_state: &mut RNGType, is_left: bool) -> Ray {
         let mut random = if is_left {
             cosine_weighted_sample_2(&hit_record.normal, rand_state)
         } else {

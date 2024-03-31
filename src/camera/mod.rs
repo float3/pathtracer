@@ -1,8 +1,8 @@
-use rand::{rngs::ThreadRng, Rng};
+use rand::Rng;
 
 use crate::{
     ray::Ray,
-    scene::FloatSize,
+    scene::{FloatSize, RNGType},
     utils::{matrix::Matrix, vector::Vec3},
 };
 
@@ -19,7 +19,7 @@ impl Camera {
         y: FloatSize,
         width: FloatSize,
         height: FloatSize,
-        rand_state: &mut ThreadRng,
+        rand_state: &mut RNGType,
     ) -> Ray {
         let x = x + rand_state.gen_range(0.0..1.0) as FloatSize;
         let y = y + rand_state.gen_range(0.0..1.0) as FloatSize;

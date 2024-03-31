@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 num-traits = "0.2.18"
 png = "0.17.13"
-rand = "0.8.5"
+rand = { version = "0.8.5", features = ["small_rng"] }
 rayon = "1.10.0"
 toml = "0.8.12"
 

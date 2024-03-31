@@ -1,4 +1,3 @@
-use rand::rngs::ThreadRng;
 use toml::Value;
 
 use crate::{
@@ -12,6 +11,8 @@ use crate::{
 };
 
 pub type FloatSize = f64;
+pub type RNGType = rand::rngs::SmallRng;
+//type RNGType = rand::rngs::ThreadRng;
 
 #[derive(Debug)]
 pub struct Scene {
@@ -46,7 +47,7 @@ impl Scene {
         &self,
         ray: &Ray,
         depth: u32,
-        rand_state: &mut ThreadRng,
+        rand_state: &mut RNGType,
         is_left: bool,
     ) -> Vec3<FloatSize> {
         let mut throughput = Vec3::new([1.0, 1.0, 1.0]);
@@ -107,10 +108,9 @@ impl Scene {
                 return Vec3::new([0.0, 0.0, 0.0]);
             }
         }
-        return light.color();
-        // Apply inverse square falloff
-        let falloff = 1.0 / (distance_to_light * distance_to_light);
-        light.color().scale(falloff)
+        // let falloff = 1.0 / (distance_to_light * distance_to_light);
+        // light.color().scale(falloff)
+        light.color()
     }
 
     pub fn from_toml(toml: &Value) -> Self {
