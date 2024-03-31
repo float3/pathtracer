@@ -57,7 +57,7 @@ color = [1.0, 1.0, 1.0]
 
 [camera]
 position = [0.0, 0.0, 2.0]
-direction = [0.0, 0.0, -1.0]
+rotation = [0.0, 0.0, -1.0]
 
 [skybox]
 color = [0.0, 0.0, 0.0]

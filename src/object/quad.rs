@@ -13,26 +13,11 @@ pub struct Quad {
     pub b: Vec3<FloatSize>,
     pub c: Vec3<FloatSize>,
     pub d: Vec3<FloatSize>,
+    pub scale: Vec2<FloatSize>,
     pub material: Material,
 }
 
-impl Quad {
-    pub fn new(
-        a: Vec3<FloatSize>,
-        b: Vec3<FloatSize>,
-        c: Vec3<FloatSize>,
-        d: Vec3<FloatSize>,
-        material: Material,
-    ) -> Quad {
-        Quad {
-            a,
-            b,
-            c,
-            d,
-            material,
-        }
-    }
-}
+impl Quad {}
 
 impl Hittable for Quad {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
@@ -59,9 +44,11 @@ impl Hittable for Quad {
         let bp = point - self.b;
         let v = ab.dot(&bp) / ab.length_squared();
 
-        // if u < 0.0 || u > 1.0 || v < 0.0 || v > 1.0 {
-        //     return None;
-        // }
+        if !(0.0..=1.0).contains(&u) || !(0.0..=1.0).contains(&v) {
+            return None;
+        }
+
+        let uv = Some(Vec2::new([u, v]) * self.scale);
 
         Some(HitRecord {
             point,
@@ -69,7 +56,7 @@ impl Hittable for Quad {
             t,
             front_face,
             material: &self.material,
-            uv: Some(Vec2::new([u, v])),
+            uv,
         })
     }
 }

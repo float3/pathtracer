@@ -8,7 +8,7 @@ use crate::{
     object::{quad::Quad, HitRecord, Hittable, ObjectType},
     ray::Ray,
     skybox::Skybox,
-    utils::vector::Vec3,
+    utils::vector::{Vec2, Vec3},
 };
 
 pub type FloatSize = f64;
@@ -113,76 +113,14 @@ impl Scene {
         light.color().scale(falloff)
     }
 
-    pub fn cornell_box() -> Self {
-        let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
-        let mut lights: Vec<Box<dyn Light>> = Vec::new();
-
-        // Floor
-        objects.push(Box::new(Quad::new(
-            Vec3::new([1.0, 0.0, 1.0]),
-            Vec3::new([1.0, 0.0, -1.0]),
-            Vec3::new([-1.0, 0.0, -1.0]),
-            Vec3::new([-1.0, 0.0, 1.0]),
-            Material::white(),
-        )));
-        // Ceiling
-        // objects.push(Box::new(Quad::new(
-        //     Vec3::new([1.0, 2.0, 1.0]),
-        //     Vec3::new([1.0, 2.0, -1.0]),
-        //     Vec3::new([-1.0, 2.0, -1.0]),
-        //     Vec3::new([-1.0, 2.0, 1.0]),
-        //     Material::white(),
-        // )));
-        // // Back wall
-        objects.push(Box::new(Quad::new(
-            Vec3::new([-1.0, 0.0, -1.0]),
-            Vec3::new([1.0, 0.0, -1.0]),
-            Vec3::new([1.0, 2.0, -1.0]),
-            Vec3::new([-1.0, 2.0, -1.0]),
-            Material::white(),
-        )));
-        // // Right wall (Green)
-        // objects.push(Box::new(Quad::new(
-        //     Vec3::new([1.0, 0.0, -1.0]),
-        //     Vec3::new([1.0, 0.0, 1.0]),
-        //     Vec3::new([1.0, 2.0, 1.0]),
-        //     Vec3::new([1.0, 2.0, -1.0]),
-        //     Material::green(),
-        // )));
-        // // Left wall (Red)
-        // objects.push(Box::new(Quad::new(
-        //     Vec3::new([-1.0, 0.0, -1.0]),
-        //     Vec3::new([-1.0, 0.0, 1.0]),
-        //     Vec3::new([-1.0, 2.0, 1.0]),
-        //     Vec3::new([-1.0, 2.0, -1.0]),
-        //     Material::red(),
-        // )));
-
-        lights.push(Box::new(PointLight::new(
-            Vec3::new([0.0, 1.9, 0.0]),
-            Vec3::new([15.0, 15.0, 15.0]),
-        )));
-
-        let camera = Camera::new(Vec3::new([0.0, 1.0, 3.0]), Vec3::new([0.0, 0.0, -1.0]));
-        let skybox = Skybox {
-            color: Vec3::new([0.1, 0.1, 0.1]),
-        };
-        Scene {
-            objects,
-            lights,
-            camera,
-            skybox,
-        }
-    }
-
     pub fn from_toml(toml: &Value) -> Self {
         let mut objects: Vec<Box<dyn Hittable>> = Vec::new();
         let mut lights: Vec<Box<dyn Light>> = Vec::new();
 
-        let camera = Camera::new(
-            Vec3::from_toml(&toml["camera"]["position"]),
-            Vec3::from_toml(&toml["camera"]["direction"]),
-        );
+        let camera = Camera {
+            position: Vec3::from_toml(&toml["camera"]["position"]),
+            rotation: Vec3::from_toml(&toml["camera"]["rotation"]),
+        };
 
         let skybox = Skybox {
             color: Vec3::from_toml(&toml["skybox"]["color"]),
@@ -200,13 +138,19 @@ impl Scene {
                     )));
                 }
                 ObjectType::Quad => {
-                    objects.push(Box::new(Quad::new(
-                        Vec3::from_toml(&object["point1"]),
-                        Vec3::from_toml(&object["point2"]),
-                        Vec3::from_toml(&object["point3"]),
-                        Vec3::from_toml(&object["point4"]),
+                    let scale_vec = match object.get("scale") {
+                        Some(scale) => Vec2::from_toml(scale),
+                        None => Vec2::new([1.0, 1.0]),
+                    };
+
+                    objects.push(Box::new(Quad {
+                        a: Vec3::from_toml(&object["point1"]),
+                        b: Vec3::from_toml(&object["point2"]),
+                        c: Vec3::from_toml(&object["point3"]),
+                        d: Vec3::from_toml(&object["point4"]),
+                        scale: scale_vec,
                         material,
-                    )));
+                    }));
                 }
                 ObjectType::Plane => {
                     objects.push(Box::new(crate::object::plane::Plane::new(

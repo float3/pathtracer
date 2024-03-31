@@ -59,17 +59,8 @@ where
         Vector(result)
     }
 
-    pub fn divide(&self, scalar: T) -> Self {
-        let mut result = [T::default(); N];
-        for (i, item) in result.iter_mut().enumerate().take(N) {
-            *item = self.0[i] / scalar;
-        }
-        Vector(result)
-    }
-
     pub fn length_squared(&self) -> T {
-        let x = self.length();
-        x * x
+        self.dot(self)
     }
 
     pub fn near_zero(&self) -> bool {
@@ -338,7 +329,6 @@ mod vector_tests {
 
     use super::*;
     use float_cmp::approx_eq;
-    use toml::Value;
     #[test]
     fn test_new() {
         let v = Vector::new([1.0, 2.0, 3.0]);
@@ -443,13 +433,6 @@ mod vector_tests {
         let v2 = Vector::new([4.0, 5.0, 6.0]);
         v1 *= v2;
         assert_eq!(v1.0, [4.0, 10.0, 18.0]);
-    }
-
-    #[test]
-    fn test_divide() {
-        let v = Vector::new([4.0, 8.0, 12.0]);
-        let divided = v.divide(2.0);
-        assert_eq!(divided.0, [2.0, 4.0, 6.0]);
     }
 
     #[test]
