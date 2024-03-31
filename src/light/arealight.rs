@@ -1,6 +1,6 @@
 use super::Light;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Arealight {}
 
 impl Light for Arealight {

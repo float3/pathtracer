@@ -1,63 +1,74 @@
 [[objects]]
 type = "quad"
-point1 = [-1.0, -1.0, -1.0]
-point2 = [-1.0, -1.0, 1.0]
-point3 = [-1.0, 1.0, 1.0]
-point4 = [-1.0, 1.0, -1.0]
+point1 = [-1.0, 0.0, -1.0]
+point2 = [-1.0, 0.0, 1.0]
+point3 = [-1.0, 2.0, 1.0]
+point4 = [-1.0, 2.0, -1.0]
 material = "red"
 
 [[objects]]
 type = "quad"
-point1 = [1.0, -1.0, -1.0]
-point2 = [1.0, 1.0, -1.0]
-point3 = [1.0, 1.0, 1.0]
-point4 = [1.0, -1.0, 1.0]
+point1 = [1.0, 0.0, -1.0]
+point2 = [1.0, 2.0, -1.0]
+point3 = [1.0, 2.0, 1.0]
+point4 = [1.0, 0.0, 1.0]
 material = "green"
 
 [[objects]]
 type = "quad"
-point1 = [-1.0, -1.0, -1.0]
-point2 = [1.0, -1.0, -1.0]
-point3 = [1.0, -1.0, 1.0]
-point4 = [-1.0, -1.0, 1.0]
+point1 = [-1.0, 0.0, -1.0]
+point2 = [1.0, 0.0, -1.0]
+point3 = [1.0, 0.0, 1.0]
+point4 = [-1.0, 0.0, 1.0]
 material = "white"
 
 [[objects]]
 type = "quad"
-point1 = [-1.0, -1.0, 1.0]
-point2 = [1.0, -1.0, 1.0]
-point3 = [1.0, 1.0, 1.0]
-point4 = [-1.0, 1.0, 1.0]
+point1 = [-1.0, 2.0, -1.0]
+point2 = [-1.0, 2.0, 1.0]
+point3 = [1.0, 2.0, 1.0]
+point4 = [1.0, 2.0, -1.0]
 material = "white"
 
 [[objects]]
 type = "quad"
-point1 = [-1.0, 1.0, -1.0]
-point2 = [-1.0, 1.0, 1.0]
-point3 = [1.0, 1.0, 1.0]
-point4 = [1.0, 1.0, -1.0]
+point1 = [-1.0, 0.0, -1.0]
+point2 = [-1.0, 2.0, -1.0]
+point3 = [1.0, 2.0, -1.0]
+point4 = [1.0, 0.0, -1.0]
 material = "white"
 
 [[objects]]
-type = "cube"
-min = [-0.5, -1.0, -0.5]
-max = [0.0, -0.5, 0.0]
+type = "quad"
+point1 = [-1.0, 0.0, 1.0]
+point2 = [1.0, 0.0, 1.0]
+point3 = [1.0, 2.0, 1.0]
+point4 = [-1.0, 2.0, 1.0]
+material = "white"
+
+[[objects]]
+type = "sphere"
+position = [-0.5, 0.5, 0.5]
+radius = 0.5
+material = "white"
+
+[[objects]]
+type = "sphere"
+position = [0.5, 0.5, -0.25]
+radius = 0.5
 material = "reflective"
 
 [[objects]]
-type = "cube"
-min = [0.1, -1.0, 0.1]
-max = [0.6, -0.4, 0.6]
-material = "white"
-
-[[lights]]
-type = "point"
-position = [0.0, 0.99, 0.0]
-color = [1.0, 1.0, 1.0]
+type = "quad"
+point1 = [-0.25, 1.99, -0.25]
+point2 = [-0.25, 1.99, 0.25]
+point3 = [0.25, 1.99, 0.25]
+point4 = [0.25, 1.99, -0.25]
+color = [10.0, 10.0, 10.0]
 
 [camera]
-position = [0.0, 0.0, 2.0]
-rotation = [0.0, 0.0, -1.0]
+position = [0.0, 1.0, 3.0]
+rotation = [0.0, 0.0, 0.0]
 
 [skybox]
 color = [0.0, 0.0, 0.0]

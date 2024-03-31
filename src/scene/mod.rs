@@ -3,7 +3,7 @@ use toml::Value;
 
 use crate::{
     camera::Camera,
-    light::{pointlight::PointLight, Light},
+    light::{pointlight::PointLight, Light, LightType},
     material::Material,
     object::{quad::Quad, HitRecord, Hittable, ObjectType},
     ray::Ray,
@@ -128,7 +128,14 @@ impl Scene {
 
         for object in toml["objects"].as_array().unwrap() {
             let object_type = object["type"].as_str().unwrap();
-            let material = Material::from_toml(&object["material"]);
+            let material = match &object.get("material") {
+                Some(material) => Material::from_toml(material),
+                None => match &object.get("color") {
+                    Some(color) => Material::from_color(Vec3::from_toml(color)),
+                    None => Material::default(),
+                },
+            };
+
             match ObjectType::from_str(object_type) {
                 ObjectType::Sphere => {
                     objects.push(Box::new(crate::object::sphere::Sphere::new(
@@ -138,7 +145,7 @@ impl Scene {
                     )));
                 }
                 ObjectType::Quad => {
-                    let scale_vec = match object.get("scale") {
+                    let scale_vec = match &object.get("scale") {
                         Some(scale) => Vec2::from_toml(scale),
                         None => Vec2::new([1.0, 1.0]),
                     };
@@ -169,16 +176,25 @@ impl Scene {
             }
         }
 
-        for light in toml["lights"].as_array().unwrap() {
-            let light_type = light["type"].as_str().unwrap();
-            match light_type {
-                "point" => {
-                    lights.push(Box::new(PointLight::new(
-                        Vec3::from_toml(&light["position"]),
-                        Vec3::from_toml(&light["color"]),
-                    )));
+        if let Some(lights_array) = toml.get("lights").and_then(|lights| lights.as_array()) {
+            for light in lights_array {
+                let light_type = light["type"].as_str().unwrap();
+                if let Some(light_type_enum) = LightType::from_str(light_type) {
+                    match light_type_enum {
+                        LightType::PointLight => {
+                            lights.push(Box::new(PointLight::new(
+                                Vec3::from_toml(&light["position"]),
+                                Vec3::from_toml(&light["color"]),
+                            )));
+                        }
+                        LightType::AreaLight => {
+                            todo!()
+                        }
+                        LightType::ObjectLight => todo!(),
+                    }
+                } else {
+                    panic!("Invalid light type: {}", light_type);
                 }
-                _ => panic!("Unknown light type: {}", light_type),
             }
         }
 

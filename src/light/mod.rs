@@ -6,6 +6,7 @@ pub mod pointlight;
 pub enum LightType {
     PointLight,
     AreaLight,
+    ObjectLight,
 }
 
 impl LightType {
@@ -13,6 +14,7 @@ impl LightType {
         match s {
             "point" => Some(Self::PointLight),
             "area" => Some(Self::AreaLight),
+            "object" => Some(Self::ObjectLight),
             _ => None,
         }
     }

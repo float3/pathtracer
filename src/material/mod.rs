@@ -191,4 +191,16 @@ impl Material {
             _ => todo!(),
         }
     }
+
+    pub fn default() -> Material {
+        Material::white()
+    }
+
+    pub fn from_color(color: crate::utils::vector::Vec3<FloatSize>) -> Material {
+        Material {
+            albedo: color,
+            reflectivity: 0.0,
+            checkered: false,
+        }
+    }
 }
