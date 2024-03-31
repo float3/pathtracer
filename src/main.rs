@@ -4,32 +4,42 @@ use pathtracer::scene::FloatSize;
 use png::text_metadata::ITXtChunk;
 use toml::Value;
 
-const MULTIPLIER: usize = 2;
-const WIDTH: usize = 640 * MULTIPLIER;
-const HEIGHT: usize = 360 * MULTIPLIER;
-const SAMPLE_COUNT: usize = 256 * MULTIPLIER;
-
 use std::env;
 use std::fs;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let pathtracer = PathTracer::new(WIDTH, HEIGHT, SAMPLE_COUNT);
 
-    match args.len() {
-        1 => {
+    let (multiplier, args_offset) = if args.len() > 1 && args[1].starts_with("--multiplier=") {
+        let multiplier_str = &args[1]["--multiplier=".len()..];
+        let multiplier: usize = multiplier_str
+            .parse()
+            .expect("Multiplier must be a positive integer");
+        (multiplier, 2)
+    } else {
+        (1, 1)
+    };
+
+    let width = 1280 * multiplier;
+    let height = 720 * multiplier;
+    let sample_count = 512 * multiplier;
+
+    let pathtracer = PathTracer::new(width, height, sample_count);
+
+    match args.len() - args_offset {
+        0 => {
             trace_scene_file("scene.toml", "output.png", &pathtracer);
         }
-        2 if args[1] == "--all" => {
+        1 if args[args_offset] == "--all" => {
             trace_all_scenes(&pathtracer);
         }
-        2 => {
-            let scene_file = &args[1];
+        1 => {
+            let scene_file = &args[args_offset];
             let output_file = format!("{}.png", scene_file.trim_end_matches(".toml"));
             trace_scene_file(scene_file, &output_file, &pathtracer);
         }
         _ => {
-            println!("Usage: pathtracer [scene_file.toml] or --all");
+            println!("Usage: pathtracer [--multiplier=N] [scene_file.toml] or --all");
         }
     }
 }
@@ -44,8 +54,8 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
 
     let mut encoder = png::Encoder::new(
         std::fs::File::create(output_file).unwrap(),
-        WIDTH as u32,
-        HEIGHT as u32,
+        pathtracer.width as u32,
+        pathtracer.height as u32,
     );
     encoder.set_color(png::ColorType::Rgb);
     encoder.set_depth(png::BitDepth::Eight);

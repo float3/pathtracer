@@ -1,0 +1,45 @@
+on:
+  push:
+    branches:
+      - master
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "render"
+
+jobs:
+  deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+          sh rustup.sh --default-toolchain nightly --profile minimal -y
+          rustup component add rustfmt clippy --toolchain nightly
+          source "$HOME/.cargo/env"
+          rustup update
+
+      - name: render
+        run: |
+          cargo run --release -- --multiplier=2 --all
+
+      - name: commit
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add -A
+          git commit -m "render"
+          git push || echo "No changes to commit"

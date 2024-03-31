@@ -3,8 +3,8 @@ use crate::utils::vector::Vec3;
 use rayon::prelude::*;
 
 pub struct PathTracer {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     samples: usize,
 }
 
