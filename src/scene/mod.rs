@@ -22,10 +22,10 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn illuminate(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
+    pub fn illuminate(&self) -> Vec3<FloatSize> {
         let mut illumination = Vec3::new([0.0, 0.0, 0.0]);
         for light in self.lights.iter() {
-            illumination += light.illuminate(hit_record);
+            illumination += light.illuminate();
         }
         illumination
     }

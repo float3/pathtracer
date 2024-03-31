@@ -22,7 +22,7 @@ fn main() {
 
     let width = 1280 * multiplier;
     let height = 720 * multiplier;
-    let sample_count = 512 * multiplier;
+    let sample_count = 256 * multiplier;
 
     let pathtracer = PathTracer::new(width, height, sample_count);
 

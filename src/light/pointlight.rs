@@ -1,4 +1,4 @@
-use crate::{object::HitRecord, scene::FloatSize, utils::vector::Vec3};
+use crate::{scene::FloatSize, utils::vector::Vec3};
 
 use super::Light;
 #[derive(Debug, Clone, Copy)]
@@ -14,7 +14,7 @@ impl PointLight {
 }
 
 impl Light for PointLight {
-    fn illuminate(&self, hit_record: &HitRecord) -> Vec3<FloatSize> {
+    fn illuminate(&self) -> Vec3<FloatSize> {
         self.color
     }
 

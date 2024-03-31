@@ -14,6 +14,7 @@ pub struct Material {
     pub checkered: bool,
 }
 
+#[allow(dead_code)]
 fn random_unit_vector(rand_state: &mut ThreadRng) -> Vec3<FloatSize> {
     let theta: FloatSize = rand_state.gen_range(0.0..(2.0 * std::f64::consts::PI as FloatSize));
     let phi_cos: FloatSize = rand_state.gen_range(-1.0..=1.0);

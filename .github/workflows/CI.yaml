@@ -34,7 +34,7 @@ jobs:
 
       - name: render
         run: |
-          cargo run --release -- --multiplier=2 --all
+          cargo run --release -- --multiplier=4 --all
 
       - name: commit
         run: |
