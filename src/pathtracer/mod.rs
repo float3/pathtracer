@@ -34,7 +34,7 @@ impl PathTracer {
                             &mut rand_state,
                         );
                         let _is_left = x < self.width / 2;
-                        let color = scene.trace_ray(&ray, 10, &mut rand_state, false);
+                        let color = scene.trace_ray(&ray, 10, &mut rand_state, true);
                         row[x] += color.scale(1.0 / self.samples as FloatSize);
                     });
                 });
