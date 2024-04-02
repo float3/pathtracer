@@ -24,13 +24,7 @@ jobs:
           token: ${{ secrets.github_token }}
           submodules: recursive
 
-      - name: rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -ssf https://sh.rustup.rs -o rustup.sh
-          sh rustup.sh --default-toolchain nightly --profile minimal -y
-          rustup component add rustfmt clippy --toolchain nightly
-          source "$home/.cargo/env"
-          rustup update
+      - uses: dtolnay/rust-toolchain@nightly
 
       - name: test
         run: |
