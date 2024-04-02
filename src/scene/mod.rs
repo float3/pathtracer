@@ -6,16 +6,33 @@ use crate::{
     camera::Camera,
     light::{pointlight::PointLight, Light, LightType},
     material::{Material, SamplingFunctions},
-    object::{quad::Quad, HitRecord, Hittable, ObjectType},
+    object::{quad::Quad, sphere::Sphere, HitRecord, Hittable, ObjectType},
     ray::Ray,
     skybox::Skybox,
     utils::vector::{Vec2, Vec3},
 };
 
+// #[cfg(all(feature = "small_rng", feature = "thread_rng"))]
+// compile_error!(
+//     "feature \"small_rng\" and feature \"thread_rng\" cannot be enabled at the same time"
+// );
+// #[cfg(feature = "small_rng")]
+// pub type RNGType = rand::rngs::SmallRng;
+// #[cfg(feature = "thread_rng")]
+// pub type RNGType = rand::rngs::ThreadRng;
+
 pub type FloatSize = f64;
-pub type RNGType = rand::rngs::SmallRng;
 pub const PI: FloatSize = std::f64::consts::PI as FloatSize;
-//type RNGType = rand::rngs::ThreadRng;
+
+cfg_if! {
+    if #[cfg(feature="small_rng")] {
+        pub type RNGType = rand::rngs::SmallRng;
+    } else if #[cfg(feature="thread_rng")] {
+        pub type RNGType = rand::rngs::ThreadRng;
+    } else {
+        compile_error!("Either feature \"small_rng\" or feature \"thread_rng\" must be enabled");
+    }
+}
 
 #[derive(Debug)]
 pub struct Scene {
@@ -104,15 +121,8 @@ impl Scene {
                 return Vec3::new([0.0, 0.0, 0.0]);
             }
         }
-        let constant_term = 1.0; // Prevents division by zero at very close distances
-        let linear_term = 0.1; // Linear falloff factor
-        let quadratic_term = 0.01; // Quadratic falloff factor (original inverse square law)
 
-        let falloff = 1.0
-            / (constant_term
-                + linear_term * distance_to_light
-                + quadratic_term * distance_to_light * distance_to_light);
-
+        let falloff = 1.0 / (distance_to_light * distance_to_light);
         light.color().scale(falloff)
     }
 
@@ -140,9 +150,9 @@ impl Scene {
             };
 
             match ObjectType::from_str(object_type) {
-                Ok(ObjectType) => match ObjectType {
+                Ok(object_type) => match object_type {
                     ObjectType::Sphere => {
-                        objects.push(Box::new(crate::object::sphere::Sphere::new(
+                        objects.push(Box::new(Sphere::new(
                             Vec3::from_toml(&object["position"]),
                             object["radius"].as_float().unwrap(),
                             material,

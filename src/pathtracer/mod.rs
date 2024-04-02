@@ -42,10 +42,10 @@ impl PathTracer {
                         self.height as FloatSize,
                         &mut rand_state,
                     );
-                    let _is_left = x < self.width / 2;
+                    let is_left = x < self.width / 2;
 
                     let sample_type = if debug {
-                        if _is_left {
+                        if is_left {
                             SamplingFunctions::CosineWeightedSample1
                         } else {
                             SamplingFunctions::CosineWeightedSample2

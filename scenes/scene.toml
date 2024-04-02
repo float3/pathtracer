@@ -14,7 +14,7 @@ material = "white"
 type = "sphere"
 position = [-2.0, 1.0, 0.0]
 radius = 1.0
-material = "black"
+material = "red"
 
 [[objects]]
 type = "cube"
@@ -41,11 +41,11 @@ material = "checkered"
 [[lights]]
 type = "point"
 position = [0.0, 4.0, 0.0]
-color = [1.0, 1.0, 1.0]
+color = [5.0, 5.0, 5.0]
 
 [camera]
 position = [0.0, 0.5, 3.0]
 rotation = [0.0, 0.0, -1.0]
 
 [skybox]
-color = [0.0, 0.0, 0.0]
+color = [0.1, 0.1, 0.3]

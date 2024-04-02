@@ -107,18 +107,14 @@ impl Material {
         rand_state: &mut RNGType,
         sampletype: &SamplingFunctions,
     ) -> (Ray, FloatSize) {
-        let mut random = if cfg!(test) {
-            match sampletype {
-                SamplingFunctions::RandomUnitVector => random_unit_vector(rand_state),
-                SamplingFunctions::CosineWeightedSample1 => {
-                    cosine_weighted_sample_1(&hit_record.normal, rand_state)
-                }
-                SamplingFunctions::CosineWeightedSample2 => {
-                    cosine_weighted_sample_2(&hit_record.normal, rand_state)
-                }
+        let mut random = match sampletype {
+            SamplingFunctions::RandomUnitVector => random_unit_vector(rand_state),
+            SamplingFunctions::CosineWeightedSample1 => {
+                cosine_weighted_sample_1(&hit_record.normal, rand_state)
             }
-        } else {
-            cosine_weighted_sample_1(&hit_record.normal, rand_state)
+            SamplingFunctions::CosineWeightedSample2 => {
+                cosine_weighted_sample_2(&hit_record.normal, rand_state)
+            }
         };
 
         if random.0.dot(&hit_record.normal) < 0.0 {
