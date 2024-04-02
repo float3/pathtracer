@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use toml::Value;
 
 use crate::{
@@ -43,13 +45,7 @@ impl Scene {
         hit_record
     }
 
-    pub fn trace_ray(
-        &self,
-        ray: &Ray,
-        depth: u32,
-        rand_state: &mut RNGType,
-        is_left: bool,
-    ) -> Vec3<FloatSize> {
+    pub fn trace_ray(&self, ray: &Ray, depth: u32, rand_state: &mut RNGType) -> Vec3<FloatSize> {
         let mut throughput = Vec3::new([1.0, 1.0, 1.0]);
         let mut ray: Ray = *ray;
         let mut emitted = Vec3::new([0.0, 0.0, 0.0]);
@@ -64,9 +60,8 @@ impl Scene {
                         direction: reflected,
                     };
                 } else {
-                    ray = hit_record
-                        .material
-                        .scatter(&hit_record, rand_state, is_left);
+                    let pdf;
+                    (ray, pdf) = hit_record.material.scatter(&hit_record, rand_state);
 
                     let brdf = hit_record
                         .material
@@ -75,17 +70,10 @@ impl Scene {
 
                     let cos_theta = ray.direction.dot(&hit_record.normal);
 
-                    let pdf = if is_left {
-                        cos_theta / std::f64::consts::PI as FloatSize
-                    } else {
-                        cos_theta / std::f64::consts::PI as FloatSize
-                        // 1.0 / (2.0 * std::f64::consts::pi as floatsize)
-                    };
-
                     throughput *= brdf.scale(cos_theta).scale(pdf.recip());
 
                     for light in &self.lights {
-                        let light_color = self.light_ray(&hit_record, light);
+                        let light_color = self.light_ray(&hit_record, &**light);
                         let light_direction = (light.position() - hit_record.point).normalize();
                         let n_dot_l = hit_record.normal.dot(&light_direction).max(0.0);
                         emitted += light_color.scale(n_dot_l) * throughput;
@@ -98,8 +86,7 @@ impl Scene {
         Vec3::new([0.0, 0.0, 0.0])
     }
 
-    fn light_ray(&self, hit_record: &HitRecord, light: &Box<dyn Light>) -> Vec3<FloatSize> {
-        // trace a ray to the light source and return the color, if it's occluded return black
+    fn light_ray(&self, hit_record: &HitRecord, light: &dyn Light) -> Vec3<FloatSize> {
         let light_direction = light.position() - hit_record.point;
         let distance_to_light = light_direction.magnitude();
         let shadow_ray = Ray::new(hit_record.point, light_direction.normalize());
@@ -137,14 +124,14 @@ impl Scene {
             };
 
             match ObjectType::from_str(object_type) {
-                ObjectType::Sphere => {
+                Ok(ObjectType::Sphere) => {
                     objects.push(Box::new(crate::object::sphere::Sphere::new(
                         Vec3::from_toml(&object["position"]),
                         object["radius"].as_float().unwrap(),
                         material,
                     )));
                 }
-                ObjectType::Quad => {
+                Ok(ObjectType::Quad) => {
                     let infinite = object["infinite"].as_bool().unwrap_or(false);
                     let scale_vec = match &object.get("scale") {
                         Some(scale) => Vec2::from_toml(scale),
@@ -160,19 +147,22 @@ impl Scene {
                         infinite,
                     }));
                 }
-                ObjectType::Plane => {
+                Ok(ObjectType::Plane) => {
                     objects.push(Box::new(crate::object::plane::Plane::new(
                         Vec3::from_toml(&object["point"]),
                         Vec3::from_toml(&object["normal"]),
                         material,
                     )));
                 }
-                ObjectType::Cube => {
+                Ok(ObjectType::Cube) => {
                     objects.push(Box::new(crate::object::cube::Cube::new(
                         Vec3::from_toml(&object["min"]),
                         Vec3::from_toml(&object["max"]),
                         material,
                     )));
+                }
+                Err(_) => {
+                    panic!("Invalid object type: {}", object_type);
                 }
             }
         }
@@ -180,7 +170,7 @@ impl Scene {
         if let Some(lights_array) = toml.get("lights").and_then(|lights| lights.as_array()) {
             for light in lights_array {
                 let light_type = light["type"].as_str().unwrap();
-                if let Some(light_type_enum) = LightType::from_str(light_type) {
+                if let Ok(light_type_enum) = LightType::from_str(light_type) {
                     match light_type_enum {
                         LightType::PointLight => {
                             lights.push(Box::new(PointLight::new(

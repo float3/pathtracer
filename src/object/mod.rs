@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{
     material::Material,
     ray::Ray,
@@ -17,13 +19,15 @@ pub enum ObjectType {
     Cube,
 }
 
-impl ObjectType {
-    pub fn from_str(s: &str) -> Self {
+impl FromStr for ObjectType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<ObjectType, ()> {
         match s {
-            "sphere" => Self::Sphere,
-            "quad" => Self::Quad,
-            "plane" => Self::Plane,
-            "cube" => Self::Cube,
+            "sphere" => Ok(Self::Sphere),
+            "quad" => Ok(Self::Quad),
+            "plane" => Ok(Self::Plane),
+            "cube" => Ok(Self::Cube),
             _ => panic!("Unknown object type: {}", s),
         }
     }

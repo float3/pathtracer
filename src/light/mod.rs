@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{scene::FloatSize, utils::vector::Vec3};
 
 pub mod arealight;
@@ -9,13 +11,15 @@ pub enum LightType {
     ObjectLight,
 }
 
-impl LightType {
-    pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for LightType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<LightType, ()> {
         match s {
-            "point" => Some(Self::PointLight),
-            "area" => Some(Self::AreaLight),
-            "object" => Some(Self::ObjectLight),
-            _ => None,
+            "point" => Ok(Self::PointLight),
+            "area" => Ok(Self::AreaLight),
+            "object" => Ok(Self::ObjectLight),
+            _ => Err(()),
         }
     }
 }

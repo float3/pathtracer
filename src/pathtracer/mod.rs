@@ -42,7 +42,7 @@ impl PathTracer {
                         &mut rand_state,
                     );
                     let _is_left = x < self.width / 2;
-                    color += scene.trace_ray(&ray, 10, &mut rand_state, true);
+                    color += scene.trace_ray(&ray, 10, &mut rand_state);
                 }
 
                 *pixel = color.scale(1.0 / self.samples as FloatSize);

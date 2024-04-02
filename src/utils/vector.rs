@@ -31,6 +31,10 @@ where
         Vector(elements)
     }
 
+    pub fn length(&self) -> T {
+        self.dot(self).sqrt()
+    }
+
     pub fn dot(&self, other: &Self) -> T {
         self.0
             .iter()
@@ -38,24 +42,19 @@ where
             .fold(T::default(), |acc, (&a, &b)| acc + a * b)
     }
 
-    pub fn length(&self) -> T {
-        self.dot(self).sqrt()
-    }
-
     pub fn normalize(&self) -> Self {
         let len: T = self.length();
-        let mut result = [T::default(); N];
-        for (i, item) in result.iter_mut().enumerate().take(N) {
-            *item = self.0[i] / len;
-        }
+        let result = self.0.map(|item| item / len);
         Vector(result)
     }
 
     pub fn scale(&self, scalar: T) -> Self {
-        let mut result = [T::default(); N];
-        for (i, item) in result.iter_mut().enumerate().take(N) {
-            *item = self.0[i] * scalar;
-        }
+        let result = self.0.map(|item| item * scalar);
+        Vector(result)
+    }
+
+    pub fn divide(&self, scalar: T) -> Self {
+        let result = self.0.map(|item| item / scalar);
         Vector(result)
     }
 
@@ -131,9 +130,7 @@ where
     T: Add<Output = T> + Copy + Default + Float,
 {
     fn add_assign(&mut self, other: Self) {
-        for (i, item) in self.0.iter_mut().enumerate().take(N) {
-            *item = *item + other.0[i];
-        }
+        *self = *self + other;
     }
 }
 
@@ -157,9 +154,7 @@ where
     T: Sub<Output = T> + Copy + Default + Float,
 {
     fn sub_assign(&mut self, other: Self) {
-        for i in 0..N {
-            self.0[i] = self.0[i] - other.0[i];
-        }
+        *self = *self - other;
     }
 }
 
@@ -183,9 +178,7 @@ where
     T: Mul<Output = T> + Copy + Default + Float,
 {
     fn mul_assign(&mut self, other: Self) {
-        for i in 0..N {
-            self.0[i] = self.0[i] * other.0[i];
-        }
+        *self = *self * other;
     }
 }
 
@@ -209,9 +202,7 @@ where
     T: Div<Output = T> + Copy + Default + Float,
 {
     fn div_assign(&mut self, other: Self) {
-        for i in 0..N {
-            self.0[i] = self.0[i] / other.0[i];
-        }
+        *self = *self / other;
     }
 }
 
@@ -247,17 +238,14 @@ where
         self.0
             .iter()
             .zip(other.0.iter())
-            .fold(Some(std::cmp::Ordering::Equal), |acc, (a, b)| {
-                if let Some(ord) = acc {
-                    if a < b {
-                        Some(std::cmp::Ordering::Less)
-                    } else if a > b {
-                        Some(std::cmp::Ordering::Greater)
-                    } else {
-                        Some(ord)
-                    }
+            .try_fold(std::cmp::Ordering::Equal, |acc, (a, b)| {
+                let ord = acc;
+                if a < b {
+                    Some(std::cmp::Ordering::Less)
+                } else if a > b {
+                    Some(std::cmp::Ordering::Greater)
                 } else {
-                    None
+                    Some(ord)
                 }
             })
     }
@@ -433,6 +421,13 @@ mod vector_tests {
         let v2 = Vector::new([4.0, 5.0, 6.0]);
         v1 *= v2;
         assert_eq!(v1.0, [4.0, 10.0, 18.0]);
+    }
+
+    #[test]
+    fn test_divide() {
+        let v = Vector::new([4.0, 8.0, 12.0]);
+        let divided = v.divide(2.0);
+        assert_eq!(divided.0, [2.0, 4.0, 6.0]);
     }
 
     #[test]

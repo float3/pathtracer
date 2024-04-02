@@ -28,11 +28,9 @@ impl Camera {
         let y0 = (y / height) * 2.0 - 1.0;
         let mut direction = Vec3::new([x0 * width / height, -y0, -1.0]);
 
-        // Create rotation matrix from Euler angles
         let rotation_matrix = self.get_rotation_matrix();
 
-        // Apply the rotation matrix to the direction vector
-        direction = rotation_matrix * direction;
+        direction = rotation_matrix.multiply_by_vector(&direction);
 
         Ray {
             direction: direction.normalize(),
@@ -45,7 +43,6 @@ impl Camera {
         let pitch = self.rotation.y().to_radians();
         let roll = self.rotation.z().to_radians();
 
-        // Create rotation matrices for each Euler angle
         let rotation_z = Matrix::new([
             [yaw.cos(), -yaw.sin(), 0.0],
             [yaw.sin(), yaw.cos(), 0.0],
