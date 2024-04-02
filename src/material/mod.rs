@@ -45,7 +45,7 @@ fn random_unit_vector(rand_state: &mut RNGType) -> (Vec3<FloatSize>, FloatSize) 
 }
 
 #[allow(dead_code)]
-fn cosine_weighted_sample(
+fn cosine_weighted_sample_1(
     normal: &Vec3<FloatSize>,
     rand_state: &mut RNGType,
 ) -> (Vec3<FloatSize>, FloatSize) {
@@ -71,7 +71,7 @@ fn cosine_weighted_sample(
 }
 
 #[allow(dead_code)]
-fn some_random_sample(
+fn cosine_weighted_sample_2(
     normal: &Vec3<FloatSize>,
     rand_state: &mut RNGType,
 ) -> (Vec3<FloatSize>, FloatSize) {
@@ -97,7 +97,7 @@ fn some_random_sample(
 
 impl Material {
     pub fn scatter(&self, hit_record: &HitRecord, rand_state: &mut RNGType) -> (Ray, FloatSize) {
-        let mut random = some_random_sample(&hit_record.normal, rand_state);
+        let mut random = cosine_weighted_sample_1(&hit_record.normal, rand_state);
 
         if random.0.dot(&hit_record.normal) < 0.0 {
             random.0 = random.0.scale(-1.0);

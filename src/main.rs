@@ -7,8 +7,8 @@ use pathtracer::{
 use png::{text_metadata::ITXtChunk, BitDepth, ColorType, Encoder};
 use toml::Value;
 
-use std::env;
 use std::fs::{self, File};
+use std::{env, path::Path};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -31,7 +31,7 @@ fn main() {
 
     match args.len() - args_offset {
         0 => {
-            trace_scene_file("scene.toml", "output.png", &pathtracer);
+            trace_scene_file("scenes/scene.toml", "renders/scene.png", &pathtracer);
         }
         1 if args[args_offset] == "--all" => {
             trace_all_scenes(&pathtracer);
@@ -83,25 +83,41 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
 }
 
 fn trace_all_scenes(pathtracer: &PathTracer) {
-    let entries = fs::read_dir(".").unwrap_or_else(|err| {
-        panic!("Failed to read directory: {}", err);
-    });
+    let scenes_dir = Path::new("./scenes");
+
+    let entries = match fs::read_dir(scenes_dir) {
+        Ok(entries) => entries,
+        Err(err) => panic!("Failed to read directory: {}", err),
+    };
 
     for entry in entries {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        if path.is_file() {
-            if let Some(ext) = path.extension() {
-                if ext == "toml" && path.file_name().unwrap() != "Cargo.toml" {
-                    let scene_file = path.to_str().unwrap();
-                    let output_file = if path.file_name().unwrap() != "scene.toml" {
-                        format!("{}.png", path.file_stem().unwrap().to_str().unwrap())
-                    } else {
-                        "output.png".to_string()
-                    };
-                    trace_scene_file(scene_file, &output_file, pathtracer);
-                }
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(err) => {
+                eprintln!("Failed to access directory entry: {}", err);
+                continue;
             }
+        };
+
+        let path = entry.path();
+        if path.is_file()
+            && path.extension() == Some("toml".as_ref())
+            && path.file_name() != Some("Cargo.toml".as_ref())
+        {
+            let scene_file = match path.to_str() {
+                Some(path_str) => path_str,
+                None => {
+                    eprintln!("Invalid UTF-8 in file path: {:?}", path);
+                    continue;
+                }
+            };
+
+            let output_file = path.file_stem().map_or_else(
+                || "renders/output.png".to_string(),
+                |stem| format!("renders/{}.png", stem.to_string_lossy()),
+            );
+
+            trace_scene_file(scene_file, &output_file, pathtracer);
         }
     }
 }
