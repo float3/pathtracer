@@ -145,11 +145,11 @@ impl Scene {
                     )));
                 }
                 ObjectType::Quad => {
+                    let infinite = object["infinite"].as_bool().unwrap_or(false);
                     let scale_vec = match &object.get("scale") {
                         Some(scale) => Vec2::from_toml(scale),
                         None => Vec2::new([1.0, 1.0]),
                     };
-
                     objects.push(Box::new(Quad {
                         a: Vec3::from_toml(&object["point1"]),
                         b: Vec3::from_toml(&object["point2"]),
@@ -157,6 +157,7 @@ impl Scene {
                         d: Vec3::from_toml(&object["point4"]),
                         scale: scale_vec,
                         material,
+                        infinite,
                     }));
                 }
                 ObjectType::Plane => {

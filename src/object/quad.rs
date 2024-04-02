@@ -13,11 +13,10 @@ pub struct Quad {
     pub b: Vec3<FloatSize>,
     pub c: Vec3<FloatSize>,
     pub d: Vec3<FloatSize>,
+    pub infinite: bool,
     pub scale: Vec2<FloatSize>,
     pub material: Material,
 }
-
-impl Quad {}
 
 impl Hittable for Quad {
     fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
@@ -44,7 +43,7 @@ impl Hittable for Quad {
         let bp = point - self.b;
         let v = ab.dot(&bp) / ab.length_squared();
 
-        if !(0.0..=1.0).contains(&u) || !(0.0..=1.0).contains(&v) {
+        if !self.infinite && (!(0.0..=1.0).contains(&u) || !(0.0..=1.0).contains(&v)) {
             return None;
         }
 

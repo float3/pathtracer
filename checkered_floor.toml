@@ -1,0 +1,21 @@
+[[objects]]
+type = "quad"
+point1 = [100.0, 0.0, 100.0]
+point2 = [100.0, 0.0, 10.0]
+point3 = [-100.0, 0.0, 10.0]
+point4 = [-100.0, 0.0, 100.0]
+infinite = true
+scale = [100.0, 100.0]
+material = "checkered"
+
+[[lights]]
+type = "point"
+position = [0.0, 5.0, 0.0]
+color = [1.0, 1.0, 1.0]
+
+[camera]
+position = [0.0, 0.5, 3.0]
+rotation = [0.0, 0.0, -1.0]
+
+[skybox]
+color = [0.0, 0.0, 0.0]
