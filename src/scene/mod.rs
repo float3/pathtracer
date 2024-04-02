@@ -140,43 +140,48 @@ impl Scene {
             };
 
             match ObjectType::from_str(object_type) {
-                Ok(ObjectType::Sphere) => {
-                    objects.push(Box::new(crate::object::sphere::Sphere::new(
-                        Vec3::from_toml(&object["position"]),
-                        object["radius"].as_float().unwrap(),
-                        material,
-                    )));
-                }
-                Ok(ObjectType::Quad) => {
-                    let infinite = object["infinite"].as_bool().unwrap_or(false);
-                    let scale_vec = match &object.get("scale") {
-                        Some(scale) => Vec2::from_toml(scale),
-                        None => Vec2::new([1.0, 1.0]),
-                    };
-                    objects.push(Box::new(Quad {
-                        a: Vec3::from_toml(&object["point1"]),
-                        b: Vec3::from_toml(&object["point2"]),
-                        c: Vec3::from_toml(&object["point3"]),
-                        d: Vec3::from_toml(&object["point4"]),
-                        scale: scale_vec,
-                        material,
-                        infinite,
-                    }));
-                }
-                Ok(ObjectType::Plane) => {
-                    objects.push(Box::new(crate::object::plane::Plane::new(
-                        Vec3::from_toml(&object["point"]),
-                        Vec3::from_toml(&object["normal"]),
-                        material,
-                    )));
-                }
-                Ok(ObjectType::Cube) => {
-                    objects.push(Box::new(crate::object::cube::Cube::new(
-                        Vec3::from_toml(&object["min"]),
-                        Vec3::from_toml(&object["max"]),
-                        material,
-                    )));
-                }
+                Ok(ObjectType) => match ObjectType {
+                    ObjectType::Sphere => {
+                        objects.push(Box::new(crate::object::sphere::Sphere::new(
+                            Vec3::from_toml(&object["position"]),
+                            object["radius"].as_float().unwrap(),
+                            material,
+                        )));
+                    }
+                    ObjectType::Quad => {
+                        let infinite = object["infinite"].as_bool().unwrap_or(false);
+                        let scale_vec = match &object.get("scale") {
+                            Some(scale) => Vec2::from_toml(scale),
+                            None => Vec2::new([1.0, 1.0]),
+                        };
+                        objects.push(Box::new(Quad {
+                            a: Vec3::from_toml(&object["point1"]),
+                            b: Vec3::from_toml(&object["point2"]),
+                            c: Vec3::from_toml(&object["point3"]),
+                            d: Vec3::from_toml(&object["point4"]),
+                            scale: scale_vec,
+                            material,
+                            infinite,
+                        }));
+                    }
+                    ObjectType::Plane => {
+                        objects.push(Box::new(crate::object::plane::Plane::new(
+                            Vec3::from_toml(&object["point"]),
+                            Vec3::from_toml(&object["normal"]),
+                            material,
+                        )));
+                    }
+                    ObjectType::Cube => {
+                        objects.push(Box::new(crate::object::cube::Cube::new(
+                            Vec3::from_toml(&object["min"]),
+                            Vec3::from_toml(&object["max"]),
+                            material,
+                        )));
+                    }
+                    ObjectType::TriangleMesh => {
+                        todo!()
+                    }
+                },
                 Err(_) => {
                     panic!("Invalid object type: {}", object_type);
                 }
@@ -186,8 +191,8 @@ impl Scene {
         if let Some(lights_array) = toml.get("lights").and_then(|lights| lights.as_array()) {
             for light in lights_array {
                 let light_type = light["type"].as_str().unwrap();
-                if let Ok(light_type_enum) = LightType::from_str(light_type) {
-                    match light_type_enum {
+                match LightType::from_str(light_type) {
+                    Ok(light_type_enum) => match light_type_enum {
                         LightType::PointLight => {
                             lights.push(Box::new(PointLight::new(
                                 Vec3::from_toml(&light["position"]),
@@ -198,9 +203,8 @@ impl Scene {
                             todo!()
                         }
                         LightType::ObjectLight => todo!(),
-                    }
-                } else {
-                    panic!("Invalid light type: {}", light_type);
+                    },
+                    Err(_) => todo!(),
                 }
             }
         }

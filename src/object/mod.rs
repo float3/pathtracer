@@ -11,12 +11,14 @@ pub mod cube;
 pub mod plane;
 pub mod quad;
 pub mod sphere;
+pub mod triangle_mesh;
 
 pub enum ObjectType {
     Sphere,
     Quad,
     Plane,
     Cube,
+    TriangleMesh,
 }
 
 impl FromStr for ObjectType {
