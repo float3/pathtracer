@@ -104,9 +104,16 @@ impl Scene {
                 return Vec3::new([0.0, 0.0, 0.0]);
             }
         }
-        // let falloff = 1.0 / (distance_to_light * distance_to_light);
-        // light.color().scale(falloff)
-        light.color()
+        let constant_term = 1.0; // Prevents division by zero at very close distances
+        let linear_term = 0.1; // Linear falloff factor
+        let quadratic_term = 0.01; // Quadratic falloff factor (original inverse square law)
+
+        let falloff = 1.0
+            / (constant_term
+                + linear_term * distance_to_light
+                + quadratic_term * distance_to_light * distance_to_light);
+
+        light.color().scale(falloff)
     }
 
     pub fn from_toml(toml: &Value) -> Self {
