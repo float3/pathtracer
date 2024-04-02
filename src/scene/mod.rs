@@ -5,7 +5,7 @@ use toml::Value;
 use crate::{
     camera::Camera,
     light::{pointlight::PointLight, Light, LightType},
-    material::Material,
+    material::{Material, SamplingFunctions},
     object::{quad::Quad, HitRecord, Hittable, ObjectType},
     ray::Ray,
     skybox::Skybox,
@@ -14,6 +14,7 @@ use crate::{
 
 pub type FloatSize = f64;
 pub type RNGType = rand::rngs::SmallRng;
+pub const PI: FloatSize = std::f64::consts::PI as FloatSize;
 //type RNGType = rand::rngs::ThreadRng;
 
 #[derive(Debug)]
@@ -45,7 +46,13 @@ impl Scene {
         hit_record
     }
 
-    pub fn trace_ray(&self, ray: &Ray, depth: u32, rand_state: &mut RNGType) -> Vec3<FloatSize> {
+    pub fn trace_ray(
+        &self,
+        ray: &Ray,
+        depth: u32,
+        rand_state: &mut RNGType,
+        sample_type: &SamplingFunctions,
+    ) -> Vec3<FloatSize> {
         let mut throughput = Vec3::new([1.0, 1.0, 1.0]);
         let mut ray: Ray = *ray;
         let mut emitted = Vec3::new([0.0, 0.0, 0.0]);
@@ -61,12 +68,14 @@ impl Scene {
                     };
                 } else {
                     let pdf;
-                    (ray, pdf) = hit_record.material.scatter(&hit_record, rand_state);
+                    (ray, pdf) = hit_record
+                        .material
+                        .scatter(&hit_record, rand_state, sample_type);
 
                     let brdf = hit_record
                         .material
                         .color(&hit_record.uv)
-                        .scale(1.0 as FloatSize / std::f64::consts::PI as FloatSize);
+                        .scale(1.0 as FloatSize / PI as FloatSize);
 
                     let cos_theta = ray.direction.dot(&hit_record.normal);
 

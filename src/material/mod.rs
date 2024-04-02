@@ -1,7 +1,7 @@
 use crate::{
     object::HitRecord,
     ray::Ray,
-    scene::{FloatSize, RNGType},
+    scene::{FloatSize, RNGType, PI},
     utils::{
         matrix::Matrix,
         vector::{Vec2, Vec3},
@@ -33,9 +33,9 @@ fn generate_coordinate_system(normal: &Vec3<FloatSize>) -> (Vec3<FloatSize>, Vec
 #[allow(dead_code)]
 fn random_unit_vector(rand_state: &mut RNGType) -> (Vec3<FloatSize>, FloatSize) {
     fn pdf() -> FloatSize {
-        1.0 / (4.0 * std::f64::consts::PI as FloatSize)
+        1.0 / (4.0 * PI as FloatSize)
     }
-    let theta: FloatSize = rand_state.gen_range(0.0..(2.0 * std::f64::consts::PI as FloatSize));
+    let theta: FloatSize = rand_state.gen_range(0.0..(2.0 * PI as FloatSize));
     let phi_cos: FloatSize = rand_state.gen_range(-1.0..=1.0);
     let phi_sin: FloatSize = (1.0 - phi_cos * phi_cos).sqrt();
     (
@@ -44,19 +44,25 @@ fn random_unit_vector(rand_state: &mut RNGType) -> (Vec3<FloatSize>, FloatSize) 
     )
 }
 
+pub enum SamplingFunctions {
+    RandomUnitVector,
+    CosineWeightedSample1,
+    CosineWeightedSample2,
+}
+
 #[allow(dead_code)]
 fn cosine_weighted_sample_1(
     normal: &Vec3<FloatSize>,
     rand_state: &mut RNGType,
 ) -> (Vec3<FloatSize>, FloatSize) {
     fn pdf(cos_theta: FloatSize) -> FloatSize {
-        cos_theta / std::f64::consts::PI as FloatSize
+        cos_theta / PI as FloatSize
     }
     let (v, u) = generate_coordinate_system(normal);
     let r1: FloatSize = rand_state.gen_range(0.0..1.0);
     let r2: FloatSize = rand_state.gen_range(0.0..1.0);
 
-    let phi = 2.0 * std::f64::consts::PI as FloatSize * r1;
+    let phi = 2.0 * PI as FloatSize * r1;
     let r = r2.sqrt();
     let x = r * phi.cos();
     let y = (1.0 - r2).sqrt(); // this is cos_theta
@@ -76,15 +82,14 @@ fn cosine_weighted_sample_2(
     rand_state: &mut RNGType,
 ) -> (Vec3<FloatSize>, FloatSize) {
     fn pdf(cos_theta: FloatSize) -> FloatSize {
-        cos_theta / std::f64::consts::PI as FloatSize
+        cos_theta / PI as FloatSize
     }
-
     let (v, u) = generate_coordinate_system(normal);
     let r1: FloatSize = rand_state.gen_range(0.0..1.0);
     let r2: FloatSize = rand_state.gen_range(0.0..1.0);
     let cos_theta = r1.sqrt();
     let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-    let phi = r2 * 2.0 * std::f64::consts::PI as FloatSize;
+    let phi = r2 * 2.0 * PI as FloatSize;
 
     let local_sample = Vec3::new([sin_theta * phi.cos(), cos_theta, sin_theta * phi.sin()]);
     let transformation_matrix = Matrix::<FloatSize, 3, 3>::new_from_columns([u, *normal, v]);
@@ -96,8 +101,25 @@ fn cosine_weighted_sample_2(
 }
 
 impl Material {
-    pub fn scatter(&self, hit_record: &HitRecord, rand_state: &mut RNGType) -> (Ray, FloatSize) {
-        let mut random = cosine_weighted_sample_1(&hit_record.normal, rand_state);
+    pub fn scatter(
+        &self,
+        hit_record: &HitRecord,
+        rand_state: &mut RNGType,
+        sampletype: &SamplingFunctions,
+    ) -> (Ray, FloatSize) {
+        let mut random = if cfg!(test) {
+            match sampletype {
+                SamplingFunctions::RandomUnitVector => random_unit_vector(rand_state),
+                SamplingFunctions::CosineWeightedSample1 => {
+                    cosine_weighted_sample_1(&hit_record.normal, rand_state)
+                }
+                SamplingFunctions::CosineWeightedSample2 => {
+                    cosine_weighted_sample_2(&hit_record.normal, rand_state)
+                }
+            }
+        } else {
+            cosine_weighted_sample_1(&hit_record.normal, rand_state)
+        };
 
         if random.0.dot(&hit_record.normal) < 0.0 {
             random.0 = random.0.scale(-1.0);
@@ -218,5 +240,60 @@ impl Material {
 impl Default for Material {
     fn default() -> Self {
         Material::white()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[allow(dead_code)]
+    fn avg_cosine(samples: Vec<Vec3<FloatSize>>, normal: Vec3<FloatSize>) -> FloatSize {
+        samples
+            .iter()
+            .map(|v| {
+                let cos_theta = v.dot(&normal) / (v.length() * normal.length());
+                cos_theta.max(0.0)
+            })
+            .sum::<FloatSize>()
+            / samples.len() as FloatSize
+    }
+
+    #[test]
+    fn test_cosine_weighted_sample_1_distribution() {
+        let mut rng = SmallRng::from_entropy();
+        let normal = Vec3::new([0.0, 1.0, 0.0]);
+        let samples: Vec<Vec3<FloatSize>> = (0..1000)
+            .map(|_| cosine_weighted_sample_1(&normal, &mut rng).0)
+            .collect();
+
+        let average_cosine: FloatSize =
+            samples.iter().map(|v| v.y()).sum::<FloatSize>() / samples.len() as FloatSize;
+        let expected_average_cosine: FloatSize = 2.0 / PI as FloatSize;
+
+        assert!(
+            (average_cosine - expected_average_cosine).abs() < 0.05,
+            "Average cosine: {}",
+            average_cosine
+        );
+    }
+
+    #[test]
+    fn test_cosine_weighted_sample_2_distribution() {
+        let mut rng = SmallRng::from_entropy();
+        let normal = Vec3::new([0.0, 1.0, 0.0]);
+        let samples: Vec<Vec3<FloatSize>> = (0..1000)
+            .map(|_| cosine_weighted_sample_2(&normal, &mut rng).0)
+            .collect();
+
+        let average_cosine: FloatSize =
+            samples.iter().map(|v| v.y()).sum::<FloatSize>() / samples.len() as FloatSize;
+        let expected_average_cosine: FloatSize = 2.0 / PI as FloatSize;
+
+        assert!(
+            (average_cosine - expected_average_cosine).abs() < 0.05,
+            "Average cosine: {}",
+            average_cosine
+        );
     }
 }

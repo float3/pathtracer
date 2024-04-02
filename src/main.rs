@@ -52,7 +52,7 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
     let value: Value = toml::from_str::<Value>(&toml_str).expect("Failed to parse TOML file");
     let buffer: Vec<Vector<f64, 3>> = {
         let scene = Scene::from_toml(&value);
-        pathtracer.trace(&scene)
+        pathtracer.trace(&scene, false)
     };
 
     let mut encoder = Encoder::new(

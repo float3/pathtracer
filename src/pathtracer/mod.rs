@@ -1,3 +1,4 @@
+use crate::material::SamplingFunctions;
 use crate::scene::{FloatSize, Scene};
 use crate::utils::vector::Vec3;
 use rayon::prelude::*;
@@ -19,7 +20,7 @@ impl PathTracer {
         }
     }
 
-    pub fn trace(&self, scene: &Scene) -> Vec<Vec3<FloatSize>> {
+    pub fn trace(&self, scene: &Scene, debug: bool) -> Vec<Vec3<FloatSize>> {
         let mut buffer = vec![Vec3::new([0.0, 0.0, 0.0]); self.width * self.height];
 
         buffer
@@ -42,7 +43,17 @@ impl PathTracer {
                         &mut rand_state,
                     );
                     let _is_left = x < self.width / 2;
-                    color += scene.trace_ray(&ray, 10, &mut rand_state);
+
+                    let sample_type = if debug {
+                        if _is_left {
+                            SamplingFunctions::CosineWeightedSample1
+                        } else {
+                            SamplingFunctions::CosineWeightedSample2
+                        }
+                    } else {
+                        SamplingFunctions::CosineWeightedSample1
+                    };
+                    color += scene.trace_ray(&ray, 10, &mut rand_state, &sample_type);
                 }
 
                 *pixel = color.scale(1.0 / self.samples as FloatSize);

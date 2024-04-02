@@ -10,11 +10,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "render"
+  group: "tests"
   cancel-in-progress: true
 
 jobs:
-  render:
+  tests:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -32,14 +32,14 @@ jobs:
           source "$home/.cargo/env"
           rustup update
 
-      - name: render
+      - name: test
         run: |
-          cargo run --release -- --multiplier=4 --all
+          cargo test --release --all-features --all-targets --all
 
       - name: commit
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git add renders
-          git commit -m "render"
+          git add tests
+          git commit -m "tests"
           git push
