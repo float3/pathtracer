@@ -764,7 +764,7 @@ dependencies = [
 [[package]]
 name = "oidn"
 version = "2.0.1"
-source = "git+https://github.com/Twinklebear/oidn-rs.git#e63198cbb3ce5d247028011fc82a79d0ff620cdf"
+source = "git+https://github.com/float3/oidn-rs.git#205697a9878739e2c00ce0882cd40a862bfc1839"
 dependencies = [
  "num_enum",
 ]

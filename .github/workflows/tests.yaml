@@ -11,7 +11,6 @@ permissions:
 
 concurrency:
   group: "tests"
-  cancel-in-progress: true
 
 jobs:
   tests:
@@ -30,12 +29,3 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
           cargo test --release --all-features --all-targets --all
-          cargo test --release -F oidn -F thread_rng --no-default-features --all-targets --all
-
-      - name: commit
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git add tests
-          git commit -m "tests"
-          git push

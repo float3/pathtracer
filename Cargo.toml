@@ -20,7 +20,7 @@ oidn = [
 [dependencies]
 cfg-if = "1.0.0"
 num-traits = "0.2.18"
-oidn = { git = "https://github.com/Twinklebear/oidn-rs.git", optional = true }
+oidn = { git = "https://github.com/float3/oidn-rs.git", optional = true }
 png = "0.17.13"
 rand = { version = "0.8.5" }
 rayon = "1.10.0"

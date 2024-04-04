@@ -2,6 +2,7 @@
 ![Checkered Floor](./renders/checkered_floor.png)
 ![Mirror Ball](./renders/mirror_ball.png)
 ![Cornell Box](./renders/cornell_box.png)
+![Red Ball](./renders/red_ball.png)
 
 # this pathtracer has the following interesting features:
 - [x] Importance Sampling

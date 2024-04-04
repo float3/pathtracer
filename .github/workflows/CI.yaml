@@ -30,6 +30,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
           cargo run --release -F thread_rng -F oidn --no-default-features -- --multiplier=4 --all
+          cargo test --release -F thread_rng -F oidn --no-default-features --all-targets --all
 
       - name: commit
         run: |
