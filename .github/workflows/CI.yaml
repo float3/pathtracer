@@ -28,7 +28,8 @@ jobs:
 
       - name: render
         run: |
-          cargo run --release -- --multiplier=4 --all
+          export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
+          cargo run --release -F thread_rng -F oidn --no-default-features -- --multiplier=4 --all
 
       - name: commit
         run: |

@@ -25,10 +25,10 @@ pub type FloatSize = f64;
 pub const PI: FloatSize = std::f64::consts::PI as FloatSize;
 
 cfg_if! {
-    if #[cfg(feature="small_rng")] {
-        pub type RNGType = rand::rngs::SmallRng;
-    } else if #[cfg(feature="thread_rng")] {
+    if #[cfg(feature="thread_rng")]{
         pub type RNGType = rand::rngs::ThreadRng;
+    } else if #[cfg(feature="small_rng")] {
+        pub type RNGType = rand::rngs::SmallRng;
     } else {
         compile_error!("Either feature \"small_rng\" or feature \"thread_rng\" must be enabled");
     }

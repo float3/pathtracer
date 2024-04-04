@@ -241,6 +241,8 @@ impl Default for Material {
 
 #[cfg(test)]
 mod tests {
+    use crate::pathtracer::get_rng;
+
     use super::*;
 
     #[allow(dead_code)]
@@ -257,7 +259,7 @@ mod tests {
 
     #[test]
     fn test_cosine_weighted_sample_1_distribution() {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = get_rng();
         let normal = Vec3::new([0.0, 1.0, 0.0]);
         let samples: Vec<Vec3<FloatSize>> = (0..1000)
             .map(|_| cosine_weighted_sample_1(&normal, &mut rng).0)
@@ -276,7 +278,7 @@ mod tests {
 
     #[test]
     fn test_cosine_weighted_sample_2_distribution() {
-        let mut rng = SmallRng::from_entropy();
+        let mut rng = get_rng();
         let normal = Vec3::new([0.0, 1.0, 0.0]);
         let samples: Vec<Vec3<FloatSize>> = (0..1000)
             .map(|_| cosine_weighted_sample_2(&normal, &mut rng).0)

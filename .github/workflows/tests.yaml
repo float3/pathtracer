@@ -28,7 +28,9 @@ jobs:
 
       - name: test
         run: |
+          export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
           cargo test --release --all-features --all-targets --all
+          cargo test --release -F oidn -F thread_rng --no-default-features --all-targets --all
 
       - name: commit
         run: |

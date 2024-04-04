@@ -1,9 +1,7 @@
 use crate::material::SamplingFunctions;
-use crate::scene::{FloatSize, Scene};
+use crate::scene::{FloatSize, RNGType, Scene};
 use crate::utils::vector::Vec3;
 use rayon::prelude::*;
-
-use rand::{rngs::SmallRng, SeedableRng};
 
 pub struct PathTracer {
     pub width: usize,
@@ -27,7 +25,7 @@ impl PathTracer {
             .par_iter_mut()
             .enumerate()
             .for_each(|(index, pixel)| {
-                let mut rand_state = SmallRng::from_entropy();
+                let mut rand_state = get_rng();
 
                 let x = index % self.width;
                 let y = index / self.width;
@@ -59,6 +57,46 @@ impl PathTracer {
                 *pixel = color.scale(1.0 / self.samples as FloatSize);
             });
 
+        #[cfg(feature = "oidn")]
+        self::denoise_image(self.width, self.height, &mut buffer);
+
         buffer
     }
+}
+
+#[cfg(feature = "oidn")]
+fn denoise_image(width: usize, height: usize, buffer: &mut Vec<Vec3<FloatSize>>) {
+    let mut binding: Vec<f32> = buffer
+        .iter()
+        .flat_map(|v| v.as_array().to_vec())
+        .map(|x| x as f32)
+        .collect();
+
+    let input: &mut [f32] = binding.as_mut_slice();
+
+    let device = oidn::Device::new();
+    oidn::RayTracing::new(&device)
+        .hdr(true)
+        .srgb(false)
+        .image_dimensions(width, height)
+        .filter_in_place(input)
+        .expect("Filter config error!");
+
+    for (i, pixel) in buffer.iter_mut().enumerate() {
+        let start = i * 3;
+        let end = start + 3;
+        let slice = &input[start..end];
+        *pixel = Vec3::new([
+            slice[0] as FloatSize,
+            slice[1] as FloatSize,
+            slice[2] as FloatSize,
+        ]);
+    }
+}
+
+pub fn get_rng() -> RNGType {
+    #[cfg(feature = "thread_rng")]
+    return rand::thread_rng();
+    #[cfg(all(feature = "small_rng", not(feature = "thread_rng")))]
+    return <rand::rngs::SmallRng as rand::SeedableRng>::from_entropy();
 }

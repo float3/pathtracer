@@ -3,6 +3,9 @@
 ![Mirror Ball](./renders/mirror_ball.png)
 ![Cornell Box](./renders/cornell_box.png)
 
+# this pathtracer has the following interesting features:
+- [x] Importance Sampling
+
 # usage
 ```bash
 cargo run --release -- [--multiplier=N] [scene_file.toml] or --all

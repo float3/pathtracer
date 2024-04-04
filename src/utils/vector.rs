@@ -94,6 +94,10 @@ where
         array.copy_from_slice(&elements[..N]);
         Vector(array)
     }
+
+    pub(crate) fn as_array(&self) -> [T; N] {
+        self.0
+    }
 }
 
 impl<T> Vector<T, 3>
