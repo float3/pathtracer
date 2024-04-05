@@ -12,25 +12,14 @@ use crate::{
     utils::vector::{Vec2, Vec3},
 };
 
-// #[cfg(all(feature = "small_rng", feature = "thread_rng"))]
-// compile_error!(
-//     "feature \"small_rng\" and feature \"thread_rng\" cannot be enabled at the same time"
-// );
-// #[cfg(feature = "small_rng")]
-// pub type RNGType = rand::rngs::SmallRng;
-// #[cfg(feature = "thread_rng")]
-// pub type RNGType = rand::rngs::ThreadRng;
-
 pub type FloatSize = f64;
 pub const PI: FloatSize = std::f64::consts::PI as FloatSize;
 
 cfg_if! {
-    if #[cfg(feature="thread_rng")]{
-        pub type RNGType = rand::rngs::ThreadRng;
-    } else if #[cfg(feature="small_rng")] {
+    if #[cfg(feature="small_rng")] {
         pub type RNGType = rand::rngs::SmallRng;
     } else {
-        compile_error!("Either feature \"small_rng\" or feature \"thread_rng\" must be enabled");
+        pub type RNGType = rand::rngs::ThreadRng;
     }
 }
 

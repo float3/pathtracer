@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["small_rng", "oidn"]
+default = ["oidn"]
 small_rng = ["rand/small_rng"]
-thread_rng = []
 oidn = [
     "dep:oidn",
     "dep:flate2",

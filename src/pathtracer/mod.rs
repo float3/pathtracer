@@ -44,7 +44,7 @@ impl PathTracer {
 
                     let sample_type = if debug {
                         if is_left {
-                            SamplingFunctions::CosineWeightedSample1
+                            SamplingFunctions::RandomUnitVector
                         } else {
                             SamplingFunctions::CosineWeightedSample2
                         }
@@ -95,8 +95,8 @@ fn denoise_image(width: usize, height: usize, buffer: &mut Vec<Vec3<FloatSize>>)
 }
 
 pub fn get_rng() -> RNGType {
-    #[cfg(feature = "thread_rng")]
+    #[cfg(not(feature = "small_rng"))]
     return rand::thread_rng();
-    #[cfg(all(feature = "small_rng", not(feature = "thread_rng")))]
+    #[cfg(feature = "small_rng")]
     return <rand::rngs::SmallRng as rand::SeedableRng>::from_entropy();
 }

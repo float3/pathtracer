@@ -35,11 +35,14 @@ fn random_unit_vector(rand_state: &mut RNGType) -> (Vec3<FloatSize>, FloatSize) 
     fn pdf() -> FloatSize {
         1.0 / (4.0 * PI as FloatSize)
     }
-    let theta: FloatSize = rand_state.gen_range(0.0..(2.0 * PI as FloatSize));
-    let phi_cos: FloatSize = rand_state.gen_range(-1.0..=1.0);
-    let phi_sin: FloatSize = (1.0 - phi_cos * phi_cos).sqrt();
+    let theta: FloatSize = rand_state.gen_range(0.0..(PI as FloatSize));
+    let phi: FloatSize = rand_state.gen_range(0.0..(2.0 * PI as FloatSize));
     (
-        Vec3::new([phi_sin * theta.cos(), phi_cos, phi_sin * theta.sin()]),
+        Vec3::new([
+            theta.sin() * phi.cos(),
+            theta.sin() * phi.sin(),
+            theta.cos(),
+        ]),
         pdf(),
     )
 }
