@@ -44,9 +44,6 @@ mod oidn {
             std::fs::remove_dir_all(oidn_dir).expect("Failed to delete OIDN directory");
         }
 
-        download_oidn(oidn_dir)
-            .await
-            .expect("Failed to download OIDN binaries");
         extract_oidn(oidn_dir)
             .await
             .expect("Failed to extract OIDN binaries");
@@ -178,112 +175,5 @@ mod oidn {
             .join("target")
             .join(build_type);
         path
-    }
-
-    #[derive(serde::Deserialize)]
-    struct Release {
-        tag_name: String,
-        assets: Vec<Asset>,
-    }
-
-    #[derive(serde::Deserialize)]
-    struct Asset {
-        browser_download_url: String,
-        name: String,
-    }
-
-    pub(crate) async fn download_oidn(oidn_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
-        let version_file = oidn_dir
-            .parent()
-            .expect("OIDN directory has no parent")
-            .join("version");
-
-        let current_version = get_current_oidn_version();
-        let version = get_oidn_version();
-        const BASE_URL: &str = "https://api.github.com/repos/OpenImageDenoise/oidn/releases";
-        let latest_release_url = format!("{}/latest", BASE_URL);
-        let current_release_url = format!("{}/tags/{}", BASE_URL, version);
-        let oidn_dir_parent = oidn_dir.parent().ok_or("OIDN directory has no parent")?;
-
-        println!("Current version: {}", current_release_url);
-
-        let client = reqwest::Client::new();
-        let response = fetch_release(&client, &current_release_url).await;
-        let latest_response = fetch_release(&client, &latest_release_url).await;
-
-        if let Err(e) = response {
-            println!("Failed to fetch current release: {}", e);
-            return Ok(());
-        }
-        let response = response.unwrap();
-        if let Err(e) = latest_response {
-            println!("Failed to fetch latest release: {}", e);
-            return Ok(());
-        }
-        let latest_response = latest_response.unwrap();
-
-        if current_version.trim() != latest_response.tag_name {
-            println!("Newer version available: {}", latest_response.tag_name);
-        }
-
-        if current_version != version {
-            println!("Version mismatch. Updating...");
-
-            cleanup_directory(oidn_dir_parent)?;
-
-            for asset in response.assets.iter().filter(|a| {
-                a.name.contains("linux") || a.name.contains("macos") || a.name.contains("windows")
-            }) {
-                download_and_save_asset(&client, asset, oidn_dir_parent).await?;
-            }
-
-            std::fs::write(&version_file, response.tag_name.as_bytes())
-                .expect("Failed to write new version");
-        } else {
-            println!("Version matches. No update needed.");
-        }
-        Ok(())
-    }
-
-    async fn fetch_release(
-        client: &reqwest::Client,
-        url: &str,
-    ) -> Result<Release, Box<dyn std::error::Error>> {
-        Ok(client
-            .get(url)
-            .header("User-Agent", "reqwest")
-            .send()
-            .await?
-            .json::<Release>()
-            .await?)
-    }
-
-    fn cleanup_directory(dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
-        for entry in std::fs::read_dir(dir)? {
-            let path = entry?.path();
-            if path.is_file()
-                && (path.extension() == Some("zip".as_ref())
-                    || path.extension() == Some("tar.gz".as_ref()))
-            {
-                std::fs::remove_file(path)?;
-            }
-        }
-        Ok(())
-    }
-
-    async fn download_and_save_asset(
-        client: &reqwest::Client,
-        asset: &Asset,
-        dir: &Path,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let response = client
-            .get(&asset.browser_download_url)
-            .header("User-Agent", "reqwest")
-            .send()
-            .await?;
-        let mut file = std::fs::File::create(dir.join(&asset.name))?;
-        let bytes = response.bytes().await?;
-        std::io::copy(&mut bytes.as_ref(), &mut file)?;
-        Ok(())
     }
 }
