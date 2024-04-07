@@ -6,20 +6,12 @@ edition = "2021"
 [features]
 default = ["oidn"]
 small_rng = ["rand/small_rng"]
-oidn = [
-    "dep:oidn",
-    "dep:flate2",
-    "dep:reqwest",
-    "dep:serde",
-    "dep:serde_json",
-    "dep:tar",
-    "dep:zip",
-]
+oidn = ["dep:oidn", "dep:flate2", "dep:tar", "dep:zip"]
 
 [dependencies]
 cfg-if = "1.0.0"
 num-traits = "0.2.18"
-oidn = { git = "https://github.com/float3/oidn-rs.git", optional = true }
+oidn = { git = "https://github.com/Twinklebear/oidn-rs.git", optional = true }
 png = "0.17.13"
 rand = { version = "0.8.5" }
 rayon = "1.10.0"
@@ -30,12 +22,6 @@ float-cmp = "0.9.0"
 
 [build-dependencies]
 flate2 = { version = "1.0.28", optional = true }
-reqwest = { version = "0.12.2", features = [
-    "blocking",
-    "json",
-], optional = true }
-serde = { version = "1.0.197", optional = true, features = ["derive"] }
-serde_json = { version = "1.0.115", optional = true }
 tar = { version = "0.4.40", optional = true }
 tokio = { version = "1.37.0", features = ["full"], optional = false }
 zip = { version = "0.6.6", features = ["flate2"], optional = true }
