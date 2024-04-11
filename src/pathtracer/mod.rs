@@ -1,6 +1,6 @@
 use crate::material::SamplingFunctions;
-use crate::scene::{FloatSize, RNGType, Scene};
-use crate::utils::vector::Vec3;
+use crate::scene::{Flooat, RNGType, Scene};
+use crate::utils::vector::Float3;
 use rayon::prelude::*;
 
 pub struct PathTracer {
@@ -18,8 +18,8 @@ impl PathTracer {
         }
     }
 
-    pub fn trace(&self, scene: &Scene, debug: bool) -> Vec<Vec3<FloatSize>> {
-        let mut buffer = vec![Vec3::new([0.0, 0.0, 0.0]); self.width * self.height];
+    pub fn trace(&self, scene: &Scene, debug: bool) -> Vec<Float3> {
+        let mut buffer = vec![Float3::new([0.0, 0.0, 0.0]); self.width * self.height];
 
         buffer
             .par_iter_mut()
@@ -30,14 +30,14 @@ impl PathTracer {
                 let x = index % self.width;
                 let y = index / self.width;
 
-                let mut color = Vec3::new([0.0, 0.0, 0.0]);
+                let mut color = Float3::new([0.0, 0.0, 0.0]);
 
                 for _sample in 0..self.samples {
                     let ray = scene.camera.get_ray(
-                        x as FloatSize,
-                        y as FloatSize,
-                        self.width as FloatSize,
-                        self.height as FloatSize,
+                        x as Flooat,
+                        y as Flooat,
+                        self.width as Flooat,
+                        self.height as Flooat,
                         &mut rand_state,
                     );
                     let is_left = x < self.width / 2;
@@ -54,7 +54,7 @@ impl PathTracer {
                     color += scene.trace_ray(&ray, 10, &mut rand_state, &sample_type);
                 }
 
-                *pixel = color.scale(1.0 / self.samples as FloatSize);
+                *pixel = color.scale(1.0 / self.samples as Flooat);
             });
 
         #[cfg(feature = "oidn")]
@@ -65,7 +65,7 @@ impl PathTracer {
 }
 
 #[cfg(feature = "oidn")]
-fn denoise_image(width: usize, height: usize, buffer: &mut Vec<Vec3<FloatSize>>) {
+fn denoise_image(width: usize, height: usize, buffer: &mut [Float3]) {
     let mut binding: Vec<f32> = buffer
         .iter()
         .flat_map(|v| v.as_array().to_vec())
@@ -86,11 +86,7 @@ fn denoise_image(width: usize, height: usize, buffer: &mut Vec<Vec3<FloatSize>>)
         let start = i * 3;
         let end = start + 3;
         let slice = &input[start..end];
-        *pixel = Vec3::new([
-            slice[0] as FloatSize,
-            slice[1] as FloatSize,
-            slice[2] as FloatSize,
-        ]);
+        *pixel = Float3::new([slice[0] as Flooat, slice[1] as Flooat, slice[2] as Flooat]);
     }
 }
 

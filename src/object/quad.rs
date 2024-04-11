@@ -1,25 +1,25 @@
 use crate::{
     material::Material,
     ray::Ray,
-    scene::FloatSize,
-    utils::vector::{Vec2, Vec3},
+    scene::Flooat,
+    utils::vector::{Float2, Float3},
 };
 
 use super::{HitRecord, Hittable};
 
 #[derive(Debug)]
 pub struct Quad {
-    pub a: Vec3<FloatSize>,
-    pub b: Vec3<FloatSize>,
-    pub c: Vec3<FloatSize>,
-    pub d: Vec3<FloatSize>,
+    pub a: Float3,
+    pub b: Float3,
+    pub c: Float3,
+    pub d: Float3,
     pub infinite: bool,
-    pub scale: Vec2<FloatSize>,
+    pub scale: Float2,
     pub material: Material,
 }
 
 impl Hittable for Quad {
-    fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord> {
         let normal = (self.b - self.a).cross(&(self.c - self.a)).normalize();
         let denom = ray.direction.dot(&normal);
 
@@ -47,7 +47,7 @@ impl Hittable for Quad {
             return None;
         }
 
-        let uv = Some(Vec2::new([u, v]) * self.scale);
+        let uv = Some(Float2::new([u, v]) * self.scale);
 
         Some(HitRecord {
             point,

@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::{scene::FloatSize, utils::vector::Vec3};
+use crate::{scene::Flooat, utils::vector::Float3};
 
 pub mod arealight;
 pub mod pointlight;
@@ -25,9 +25,9 @@ impl FromStr for LightType {
 }
 
 pub trait Light: Sync + std::fmt::Debug {
-    fn position(&self) -> Vec3<FloatSize>;
-    fn illuminate(&self) -> Vec3<FloatSize>;
-    fn intensity(&self) -> FloatSize;
-    fn color(&self) -> Vec3<FloatSize>;
+    fn position(&self) -> Float3;
+    fn illuminate(&self) -> Float3;
+    fn intensity(&self) -> Flooat;
+    fn color(&self) -> Float3;
     // fn clone_box(&self) -> Box<dyn Light>;
 }

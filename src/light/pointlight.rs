@@ -1,32 +1,32 @@
-use crate::{scene::FloatSize, utils::vector::Vec3};
+use crate::{scene::Flooat, utils::vector::Float3};
 
 use super::Light;
 #[derive(Debug, Clone, Copy)]
 pub struct PointLight {
-    position: Vec3<FloatSize>,
-    color: Vec3<FloatSize>,
+    position: Float3,
+    color: Float3,
 }
 
 impl PointLight {
-    pub fn new(position: Vec3<FloatSize>, color: Vec3<FloatSize>) -> Self {
+    pub fn new(position: Float3, color: Float3) -> Self {
         PointLight { position, color }
     }
 }
 
 impl Light for PointLight {
-    fn illuminate(&self) -> Vec3<FloatSize> {
+    fn illuminate(&self) -> Float3 {
         self.color
     }
 
-    fn position(&self) -> Vec3<FloatSize> {
+    fn position(&self) -> Float3 {
         self.position
     }
 
-    fn intensity(&self) -> FloatSize {
+    fn intensity(&self) -> Flooat {
         self.color.length()
     }
 
-    fn color(&self) -> Vec3<FloatSize> {
+    fn color(&self) -> Float3 {
         self.color
     }
 }

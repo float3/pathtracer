@@ -1,16 +1,16 @@
-use crate::{material::Material, ray::Ray, scene::FloatSize, utils::vector::Vec3};
+use crate::{material::Material, ray::Ray, scene::Flooat, utils::vector::Float3};
 
 use super::{HitRecord, Hittable};
 
 #[derive(Debug)]
 pub struct Plane {
-    point: Vec3<FloatSize>,
-    normal: Vec3<FloatSize>,
+    point: Float3,
+    normal: Float3,
     material: Material,
 }
 
 impl Plane {
-    pub fn new(point: Vec3<FloatSize>, normal: Vec3<FloatSize>, material: Material) -> Self {
+    pub fn new(point: Float3, normal: Float3, material: Material) -> Self {
         Plane {
             point,
             normal: normal.normalize(),
@@ -20,7 +20,7 @@ impl Plane {
 }
 
 impl Hittable for Plane {
-    fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord> {
         let denom = self.normal.dot(&ray.direction);
         if denom.abs() > 1e-6 {
             let v = self.point - ray.origin;

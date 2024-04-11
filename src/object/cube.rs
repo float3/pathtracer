@@ -1,22 +1,22 @@
-use crate::{material::Material, ray::Ray, scene::FloatSize, utils::vector::Vec3};
+use crate::{material::Material, ray::Ray, scene::Flooat, utils::vector::Float3};
 
 use super::{HitRecord, Hittable};
 
 #[derive(Debug)]
 pub struct Cube {
-    min: Vec3<FloatSize>,
-    max: Vec3<FloatSize>,
+    min: Float3,
+    max: Float3,
     material: Material,
 }
 
 impl Cube {
-    pub fn new(min: Vec3<FloatSize>, max: Vec3<FloatSize>, material: Material) -> Self {
+    pub fn new(min: Float3, max: Float3, material: Material) -> Self {
         Cube { min, max, material }
     }
 }
 
 impl Hittable for Cube {
-    fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord> {
         let mut t_min = t_min;
         let mut t_max = t_max;
         for i in 0..3 {
@@ -33,7 +33,7 @@ impl Hittable for Cube {
             }
         }
         let point = ray.at(t_min);
-        let outward_normal = Vec3::new([
+        let outward_normal = Float3::new([
             (point.0[0] - self.min.0[0]).min(self.max.0[0] - point.0[0]),
             (point.0[1] - self.min.0[1]).min(self.max.0[1] - point.0[1]),
             (point.0[2] - self.min.0[2]).min(self.max.0[2] - point.0[2]),

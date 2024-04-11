@@ -3,23 +3,9 @@ use std::{
     ops::{Add, AddAssign, Index, IndexMut, Mul},
 };
 
-use super::vector::{Vec1, Vec2, Vec3, Vec4, Vector};
+use crate::scene::{Flooat, Int};
 
-macro_rules! impl_new_from_columns {
-    ($Matrix:ident, $Vec:ident, $N:expr) => {
-        impl<T: Copy + Default> $Matrix<T, $N, $N> {
-            pub fn new_from_columns(cols: [$Vec<T>; $N]) -> Self {
-                let mut arr = [[T::default(); $N]; $N];
-                for i in 0..$N {
-                    for j in 0..$N {
-                        arr[j][i] = cols[i].0[j];
-                    }
-                }
-                $Matrix(arr)
-            }
-        }
-    };
-}
+use super::vector::Vector;
 
 #[derive(Debug, Clone)]
 pub struct Matrix<T, const M: usize, const N: usize>(pub [[T; N]; M]);
@@ -43,24 +29,17 @@ where
         }
         Vector(result)
     }
-}
 
-impl_new_from_columns!(Matrix, Vec1, 1);
-// impl_new_from_columns!(Matrix, Vec1, 2);
-// impl_new_from_columns!(Matrix, Vec1, 3);
-// impl_new_from_columns!(Matrix, Vec1, 4);
-// impl_new_from_columns!(Matrix, Vec2, 1);
-impl_new_from_columns!(Matrix, Vec2, 2);
-// impl_new_from_columns!(Matrix, Vec2, 3);
-// impl_new_from_columns!(Matrix, Vec2, 4);
-// impl_new_from_columns!(Matrix, Vec3, 1);
-// impl_new_from_columns!(Matrix, Vec3, 2);
-impl_new_from_columns!(Matrix, Vec3, 3);
-// impl_new_from_columns!(Matrix, Vec3, 4);
-// impl_new_from_columns!(Matrix, Vec4, 1);
-// impl_new_from_columns!(Matrix, Vec4, 2);
-// impl_new_from_columns!(Matrix, Vec4, 3);
-impl_new_from_columns!(Matrix, Vec4, 4);
+    pub fn new_from_columns(columns: [[T; M]; N]) -> Self {
+        let mut elements = [[T::default(); N]; M];
+        for (i, column) in columns.iter().enumerate() {
+            for (j, elem) in column.iter().enumerate() {
+                elements[j][i] = *elem;
+            }
+        }
+        Matrix(elements)
+    }
+}
 
 impl<T, const M: usize, const N: usize> Index<usize> for Matrix<T, M, N> {
     type Output = [T; N];
@@ -108,6 +87,27 @@ where
             .all(|(self_row, other_row)| self_row.iter().zip(other_row.iter()).all(|(a, b)| a == b))
     }
 }
+
+pub type Float1x1 = Matrix<Flooat, 1, 1>;
+// pub type Float1x2 = Matrix<FloatSize, 1, 2>;
+// pub type Float1x3 = Matrix<FloatSize, 1, 3>;
+// pub type Float1x4 = Matrix<FloatSize, 1, 4>;
+// pub type Float2x1 = Matrix<FloatSize, 2, 1>;
+pub type Float2x2 = Matrix<Flooat, 2, 2>;
+// pub type Float2x3 = Matrix<FloatSize, 2, 3>;
+// pub type Float2x4 = Matrix<FloatSize, 2, 4>;
+// pub type Float3x1 = Matrix<FloatSize, 3, 1>;
+// pub type Float3x2 = Matrix<FloatSize, 3, 2>;
+pub type Float3x3 = Matrix<Flooat, 3, 3>;
+// pub type Float3x4 = Matrix<FloatSize, 3, 4>;
+// pub type Float4x1 = Matrix<FloatSize, 4, 1>;
+// pub type Float4x2 = Matrix<FloatSize, 4, 2>;
+// pub type Float4x3 = Matrix<FloatSize, 4, 3>;
+pub type Float4x4 = Matrix<Flooat, 4, 4>;
+pub type Int1x1 = Matrix<Int, 1, 1>;
+pub type Int2x2 = Matrix<Int, 2, 2>;
+pub type Int3x3 = Matrix<Int, 3, 3>;
+pub type Int4x4 = Matrix<Int, 4, 4>;
 
 #[cfg(test)]
 mod tests {

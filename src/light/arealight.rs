@@ -1,4 +1,4 @@
-use crate::{scene::FloatSize, utils::vector::Vec3};
+use crate::{scene::Flooat, utils::vector::Float3};
 
 use super::Light;
 
@@ -6,19 +6,19 @@ use super::Light;
 pub struct Arealight {}
 
 impl Light for Arealight {
-    fn illuminate(&self) -> Vec3<FloatSize> {
+    fn illuminate(&self) -> Float3 {
         todo!()
     }
 
-    fn position(&self) -> Vec3<FloatSize> {
+    fn position(&self) -> Float3 {
         todo!()
     }
 
-    fn intensity(&self) -> FloatSize {
+    fn intensity(&self) -> Flooat {
         todo!()
     }
 
-    fn color(&self) -> Vec3<FloatSize> {
+    fn color(&self) -> Float3 {
         todo!()
     }
 }

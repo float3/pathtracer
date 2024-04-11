@@ -21,27 +21,12 @@ mod oidn {
         env::var("OIDN_VER").expect("OIDN_VER environment variable not set. Please set this to the OIDN version you want to install.")
     }
 
-    pub fn get_current_oidn_version() -> String {
-        let oidn_dir = get_oidn_dir();
-        let version_file = Path::new(&oidn_dir)
-            .parent()
-            .expect("OIDN directory has no parent")
-            .join("version");
-
-        let mut current_version = String::new();
-        if version_file.exists() {
-            current_version =
-                std::fs::read_to_string(&version_file).expect("Failed to read version file");
-        }
-        current_version
-    }
-
     pub(crate) async fn setup_oidn_environment() {
         let oidn_dir = get_oidn_dir();
         let oidn_dir = Path::new(&oidn_dir);
 
         if oidn_dir.exists() {
-            std::fs::remove_dir_all(oidn_dir).expect("Failed to delete OIDN directory");
+            return;
         }
 
         extract_oidn(oidn_dir)

@@ -3,6 +3,8 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 use num_traits::{Float, FromPrimitive};
 use toml::Value;
 
+use crate::scene::{Flooat, Int};
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vector<T, const N: usize>(pub [T; N]);
 
@@ -264,58 +266,98 @@ where
     }
 }
 
-pub type Vec1<T> = Vector<T, 1>;
-pub type Vec2<T> = Vector<T, 2>;
-pub type Vec3<T> = Vector<T, 3>;
-pub type Vec4<T> = Vector<T, 4>;
+pub type Float2 = Vector<Flooat, 2>;
+pub type Float3 = Vector<Flooat, 3>;
+pub type Float4 = Vector<Flooat, 4>;
 
-impl<T> Vec1<T> {
-    pub fn x(&self) -> &T {
-        &self.0[0]
+pub type Int2 = Vector<Int, 2>;
+pub type Int3 = Vector<Int, 3>;
+pub type Int4 = Vector<Int, 4>;
+
+impl Float2 {
+    pub fn x(&self) -> Flooat {
+        self.0[0]
+    }
+
+    pub fn y(&self) -> Flooat {
+        self.0[1]
     }
 }
 
-impl<T> Vec2<T> {
-    pub fn x(&self) -> &T {
-        &self.0[0]
+impl Float3 {
+    pub fn x(&self) -> Flooat {
+        self.0[0]
     }
 
-    pub fn y(&self) -> &T {
-        &self.0[1]
+    pub fn y(&self) -> Flooat {
+        self.0[1]
+    }
+
+    pub fn z(&self) -> Flooat {
+        self.0[2]
     }
 }
 
-impl<T> Vec3<T> {
-    pub fn x(&self) -> &T {
-        &self.0[0]
+impl Float4 {
+    pub fn x(&self) -> Flooat {
+        self.0[0]
     }
 
-    pub fn y(&self) -> &T {
-        &self.0[1]
+    pub fn y(&self) -> Flooat {
+        self.0[1]
     }
 
-    pub fn z(&self) -> &T {
-        &self.0[2]
+    pub fn z(&self) -> Flooat {
+        self.0[2]
+    }
+
+    pub fn w(&self) -> Flooat {
+        self.0[3]
     }
 }
 
-impl<T> Vec4<T> {
-    pub fn x(&self) -> &T {
-        &self.0[0]
+impl Int2 {
+    pub fn x(&self) -> Int {
+        self.0[0]
     }
 
-    pub fn y(&self) -> &T {
-        &self.0[1]
-    }
-
-    pub fn z(&self) -> &T {
-        &self.0[2]
-    }
-
-    pub fn w(&self) -> &T {
-        &self.0[3]
+    pub fn y(&self) -> Int {
+        self.0[1]
     }
 }
+
+impl Int3 {
+    pub fn x(&self) -> Int {
+        self.0[0]
+    }
+
+    pub fn y(&self) -> Int {
+        self.0[1]
+    }
+
+    pub fn z(&self) -> Int {
+        self.0[2]
+    }
+}
+
+impl Int4 {
+    pub fn x(&self) -> Int {
+        self.0[0]
+    }
+
+    pub fn y(&self) -> Int {
+        self.0[1]
+    }
+
+    pub fn z(&self) -> Int {
+        self.0[2]
+    }
+
+    pub fn w(&self) -> Int {
+        self.0[3]
+    }
+}
+
 #[cfg(test)]
 mod vector_tests {
 

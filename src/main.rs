@@ -1,6 +1,6 @@
 use pathtracer::{
     pathtracer::PathTracer,
-    scene::{FloatSize, Scene},
+    scene::{Flooat, Scene},
     utils::vector::Vector,
 };
 
@@ -68,7 +68,7 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
     let modbuffer = &buffer
         .iter()
         .flat_map(|color| {
-            let color = color.scale(255.0 as FloatSize);
+            let color = color.scale(255.0 as Flooat);
             vec![(color.0[0]) as u8, (color.0[1]) as u8, (color.0[2]) as u8]
         })
         .collect::<Vec<u8>>();

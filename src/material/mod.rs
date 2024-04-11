@@ -1,10 +1,10 @@
 use crate::{
     object::HitRecord,
     ray::Ray,
-    scene::{FloatSize, RNGType, PI},
+    scene::{Flooat, RNGType, PI},
     utils::{
-        matrix::Matrix,
-        vector::{Vec2, Vec3},
+        matrix::Float3x3,
+        vector::{Float2, Float3},
     },
 };
 
@@ -12,17 +12,17 @@ use rand::prelude::*;
 
 #[derive(Debug)]
 pub struct Material {
-    pub albedo: Vec3<FloatSize>,
-    pub reflectivity: FloatSize,
+    pub albedo: Float3,
+    pub reflectivity: Flooat,
     pub checkered: bool,
 }
 
-fn generate_coordinate_system(normal: &Vec3<FloatSize>) -> (Vec3<FloatSize>, Vec3<FloatSize>) {
+fn generate_coordinate_system(normal: &Float3) -> (Float3, Float3) {
     let w = *normal;
     let a = if w.x().abs() > 0.9 {
-        Vec3::new([0.0, 1.0, 0.0])
+        Float3::new([0.0, 1.0, 0.0])
     } else {
-        Vec3::new([1.0, 0.0, 0.0])
+        Float3::new([1.0, 0.0, 0.0])
     };
     // let a = Vec3::new([1.0, 1.0, 3.0]);
     let u = w.cross(&a).normalize();
@@ -31,14 +31,14 @@ fn generate_coordinate_system(normal: &Vec3<FloatSize>) -> (Vec3<FloatSize>, Vec
 }
 
 #[allow(dead_code)]
-fn random_unit_vector(rand_state: &mut RNGType) -> (Vec3<FloatSize>, FloatSize) {
-    fn pdf() -> FloatSize {
-        1.0 / (4.0 * PI as FloatSize)
+fn random_unit_vector(rand_state: &mut RNGType) -> (Float3, Flooat) {
+    fn pdf() -> Flooat {
+        1.0 / (4.0 * PI as Flooat)
     }
-    let theta: FloatSize = rand_state.gen_range(0.0..(PI as FloatSize));
-    let phi: FloatSize = rand_state.gen_range(0.0..(2.0 * PI as FloatSize));
+    let theta: Flooat = rand_state.gen_range(0.0..(PI as Flooat));
+    let phi: Flooat = rand_state.gen_range(0.0..(2.0 * PI as Flooat));
     (
-        Vec3::new([
+        Float3::new([
             theta.sin() * phi.cos(),
             theta.sin() * phi.sin(),
             theta.cos(),
@@ -54,25 +54,22 @@ pub enum SamplingFunctions {
 }
 
 #[allow(dead_code)]
-fn cosine_weighted_sample_1(
-    normal: &Vec3<FloatSize>,
-    rand_state: &mut RNGType,
-) -> (Vec3<FloatSize>, FloatSize) {
-    fn pdf(cos_theta: FloatSize) -> FloatSize {
-        cos_theta / PI as FloatSize
+fn cosine_weighted_sample_1(normal: &Float3, rand_state: &mut RNGType) -> (Float3, Flooat) {
+    fn pdf(cos_theta: Flooat) -> Flooat {
+        cos_theta / PI as Flooat
     }
     let (v, u) = generate_coordinate_system(normal);
-    let r1: FloatSize = rand_state.gen_range(0.0..1.0);
-    let r2: FloatSize = rand_state.gen_range(0.0..1.0);
+    let r1: Flooat = rand_state.gen_range(0.0..1.0);
+    let r2: Flooat = rand_state.gen_range(0.0..1.0);
 
-    let phi = 2.0 * PI as FloatSize * r1;
+    let phi = 2.0 * PI as Flooat * r1;
     let r = r2.sqrt();
     let x = r * phi.cos();
     let y = (1.0 - r2).sqrt(); // this is cos_theta
     let z = r * phi.sin();
 
-    let local_sample = Vec3::new([x, y, z]);
-    let transformation_matrix = Matrix::<FloatSize, 3, 3>::new_from_columns([u, *normal, v]);
+    let local_sample = Float3::new([x, y, z]);
+    let transformation_matrix = Float3x3::new_from_columns([u.0, normal.0, v.0]);
     (
         transformation_matrix.multiply_by_vector(&local_sample),
         pdf(y),
@@ -80,23 +77,19 @@ fn cosine_weighted_sample_1(
 }
 
 #[allow(dead_code)]
-fn cosine_weighted_sample_2(
-    normal: &Vec3<FloatSize>,
-    rand_state: &mut RNGType,
-) -> (Vec3<FloatSize>, FloatSize) {
-    fn pdf(cos_theta: FloatSize) -> FloatSize {
-        cos_theta / PI as FloatSize
+fn cosine_weighted_sample_2(normal: &Float3, rand_state: &mut RNGType) -> (Float3, Flooat) {
+    fn pdf(cos_theta: Flooat) -> Flooat {
+        cos_theta / PI as Flooat
     }
     let (v, u) = generate_coordinate_system(normal);
-    let r1: FloatSize = rand_state.gen_range(0.0..1.0);
-    let r2: FloatSize = rand_state.gen_range(0.0..1.0);
+    let r1: Flooat = rand_state.gen_range(0.0..1.0);
+    let r2: Flooat = rand_state.gen_range(0.0..1.0);
     let cos_theta = r1.sqrt();
     let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-    let phi = r2 * 2.0 * PI as FloatSize;
+    let phi = r2 * 2.0 * PI as Flooat;
 
-    let local_sample = Vec3::new([sin_theta * phi.cos(), cos_theta, sin_theta * phi.sin()]);
-    let transformation_matrix = Matrix::<FloatSize, 3, 3>::new_from_columns([u, *normal, v]);
-
+    let local_sample = Float3::new([sin_theta * phi.cos(), cos_theta, sin_theta * phi.sin()]);
+    let transformation_matrix = Float3x3::new_from_columns([u.0, normal.0, v.0]);
     (
         transformation_matrix.multiply_by_vector(&local_sample),
         pdf(cos_theta),
@@ -109,7 +102,7 @@ impl Material {
         hit_record: &HitRecord,
         rand_state: &mut RNGType,
         sampletype: &SamplingFunctions,
-    ) -> (Ray, FloatSize) {
+    ) -> (Ray, Flooat) {
         let mut random = match sampletype {
             SamplingFunctions::RandomUnitVector => random_unit_vector(rand_state),
             SamplingFunctions::CosineWeightedSample1 => {
@@ -133,7 +126,7 @@ impl Material {
         )
     }
 
-    pub fn color(&self, uv: &Option<Vec2<FloatSize>>) -> Vec3<FloatSize> {
+    pub fn color(&self, uv: &Option<Float2>) -> Float3 {
         if self.checkered {
             match uv {
                 Some(uv) => {
@@ -142,9 +135,9 @@ impl Material {
 
                     // return Vec3::new([*u, *v, 0.0]);
                     if (((u * 10.0).floor() as i32) + ((v * 10.0).floor() as i32)) % 2 == 0 {
-                        Vec3::new([0.0, 0.0, 0.0])
+                        Float3::new([0.0, 0.0, 0.0])
                     } else {
-                        Vec3::new([1.0, 1.0, 1.0])
+                        Float3::new([1.0, 1.0, 1.0])
                     }
                 }
                 None => self.albedo,
@@ -154,13 +147,13 @@ impl Material {
         }
     }
 
-    pub fn reflect(v: &Vec3<FloatSize>, n: &Vec3<FloatSize>) -> Vec3<FloatSize> {
+    pub fn reflect(v: &Float3, n: &Float3) -> Float3 {
         *v - n.scale(2.0 * v.dot(n))
     }
 
     pub fn reflective() -> Material {
         Material {
-            albedo: Vec3::new([1.0, 1.0, 1.0]),
+            albedo: Float3::new([1.0, 1.0, 1.0]),
             reflectivity: 1.0,
             checkered: false,
         }
@@ -168,7 +161,7 @@ impl Material {
 
     pub fn red() -> Material {
         Material {
-            albedo: Vec3::new([1.0, 0.0, 0.0]),
+            albedo: Float3::new([1.0, 0.0, 0.0]),
             reflectivity: 0.0,
             checkered: false,
         }
@@ -176,7 +169,7 @@ impl Material {
 
     pub fn green() -> Material {
         Material {
-            albedo: Vec3::new([0.0, 1.0, 0.0]),
+            albedo: Float3::new([0.0, 1.0, 0.0]),
             reflectivity: 0.0,
             checkered: false,
         }
@@ -184,7 +177,7 @@ impl Material {
 
     pub fn blue() -> Material {
         Material {
-            albedo: Vec3::new([0.0, 0.0, 1.0]),
+            albedo: Float3::new([0.0, 0.0, 1.0]),
             reflectivity: 0.0,
             checkered: false,
         }
@@ -192,7 +185,7 @@ impl Material {
 
     pub fn white() -> Material {
         Material {
-            albedo: Vec3::new([1.0, 1.0, 1.0]),
+            albedo: Float3::new([1.0, 1.0, 1.0]),
             reflectivity: 0.0,
             checkered: false,
         }
@@ -200,7 +193,7 @@ impl Material {
 
     pub fn checkered() -> Material {
         Material {
-            albedo: Vec3::new([1.0, 1.0, 1.0]),
+            albedo: Float3::new([1.0, 1.0, 1.0]),
             reflectivity: 0.0,
             checkered: true,
         }
@@ -208,7 +201,7 @@ impl Material {
 
     pub fn black() -> Material {
         Material {
-            albedo: Vec3::new([0.0, 0.0, 0.0]),
+            albedo: Float3::new([0.0, 0.0, 0.0]),
             reflectivity: 0.0,
             checkered: false,
         }
@@ -227,7 +220,7 @@ impl Material {
         }
     }
 
-    pub fn from_color(color: crate::utils::vector::Vec3<FloatSize>) -> Material {
+    pub fn from_color(color: crate::utils::vector::Float3) -> Material {
         Material {
             albedo: color,
             reflectivity: 0.0,
@@ -249,28 +242,28 @@ mod tests {
     use super::*;
 
     #[allow(dead_code)]
-    fn avg_cosine(samples: Vec<Vec3<FloatSize>>, normal: Vec3<FloatSize>) -> FloatSize {
+    fn avg_cosine(samples: Vec<Float3>, normal: Float3) -> Flooat {
         samples
             .iter()
             .map(|v| {
                 let cos_theta = v.dot(&normal) / (v.length() * normal.length());
                 cos_theta.max(0.0)
             })
-            .sum::<FloatSize>()
-            / samples.len() as FloatSize
+            .sum::<Flooat>()
+            / samples.len() as Flooat
     }
 
     #[test]
     fn test_cosine_weighted_sample_1_distribution() {
         let mut rng = get_rng();
-        let normal = Vec3::new([0.0, 1.0, 0.0]);
-        let samples: Vec<Vec3<FloatSize>> = (0..1000)
+        let normal = Float3::new([0.0, 1.0, 0.0]);
+        let samples: Vec<Float3> = (0..1000)
             .map(|_| cosine_weighted_sample_1(&normal, &mut rng).0)
             .collect();
 
-        let average_cosine: FloatSize =
-            samples.iter().map(|v| v.y()).sum::<FloatSize>() / samples.len() as FloatSize;
-        let expected_average_cosine: FloatSize = 2.0 / PI as FloatSize;
+        let average_cosine: Flooat =
+            samples.iter().map(|v| v.y()).sum::<Flooat>() / samples.len() as Flooat;
+        let expected_average_cosine: Flooat = 2.0 / PI as Flooat;
 
         assert!(
             (average_cosine - expected_average_cosine).abs() < 0.05,
@@ -282,14 +275,14 @@ mod tests {
     #[test]
     fn test_cosine_weighted_sample_2_distribution() {
         let mut rng = get_rng();
-        let normal = Vec3::new([0.0, 1.0, 0.0]);
-        let samples: Vec<Vec3<FloatSize>> = (0..1000)
+        let normal = Float3::new([0.0, 1.0, 0.0]);
+        let samples: Vec<Float3> = (0..1000)
             .map(|_| cosine_weighted_sample_2(&normal, &mut rng).0)
             .collect();
 
-        let average_cosine: FloatSize =
-            samples.iter().map(|v| v.y()).sum::<FloatSize>() / samples.len() as FloatSize;
-        let expected_average_cosine: FloatSize = 2.0 / PI as FloatSize;
+        let average_cosine: Flooat =
+            samples.iter().map(|v| v.y()).sum::<Flooat>() / samples.len() as Flooat;
+        let expected_average_cosine: Flooat = 2.0 / PI as Flooat;
 
         assert!(
             (average_cosine - expected_average_cosine).abs() < 0.05,

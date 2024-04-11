@@ -9,11 +9,12 @@ use crate::{
     object::{quad::Quad, sphere::Sphere, HitRecord, Hittable, ObjectType},
     ray::Ray,
     skybox::Skybox,
-    utils::vector::{Vec2, Vec3},
+    utils::vector::{Float2, Float3},
 };
 
-pub type FloatSize = f64;
-pub const PI: FloatSize = std::f64::consts::PI as FloatSize;
+pub type Flooat = f64;
+pub type Int = i64;
+pub const PI: Flooat = std::f64::consts::PI as Flooat;
 
 cfg_if! {
     if #[cfg(feature="small_rng")] {
@@ -32,16 +33,16 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn illuminate(&self) -> Vec3<FloatSize> {
-        let mut illumination = Vec3::new([0.0, 0.0, 0.0]);
+    pub fn illuminate(&self) -> Float3 {
+        let mut illumination = Float3::new([0.0, 0.0, 0.0]);
         for light in self.lights.iter() {
             illumination += light.illuminate();
         }
         illumination
     }
 
-    pub fn hit(&self, ray: &Ray, arg: FloatSize) -> Option<HitRecord> {
-        let mut closest_so_far = FloatSize::INFINITY;
+    pub fn hit(&self, ray: &Ray, arg: Flooat) -> Option<HitRecord> {
+        let mut closest_so_far = Flooat::INFINITY;
         let mut hit_record = None;
         for object in self.objects.iter() {
             if let Some(record) = object.hit(ray, arg, closest_so_far) {
@@ -58,10 +59,10 @@ impl Scene {
         depth: u32,
         rand_state: &mut RNGType,
         sample_type: &SamplingFunctions,
-    ) -> Vec3<FloatSize> {
-        let mut throughput = Vec3::new([1.0, 1.0, 1.0]);
+    ) -> Float3 {
+        let mut throughput = Float3::new([1.0, 1.0, 1.0]);
         let mut ray: Ray = *ray;
-        let mut emitted = Vec3::new([0.0, 0.0, 0.0]);
+        let mut emitted = Float3::new([0.0, 0.0, 0.0]);
         for _bounce in 0..depth {
             if let Some(hit_record) = self.hit(&ray, 0.001) {
                 // return hit_record.material.color(&hit_record.uv);
@@ -81,7 +82,7 @@ impl Scene {
                     let brdf = hit_record
                         .material
                         .color(&hit_record.uv)
-                        .scale(1.0 as FloatSize / PI as FloatSize);
+                        .scale(1.0 as Flooat / PI as Flooat);
 
                     let cos_theta = ray.direction.dot(&hit_record.normal);
 
@@ -98,16 +99,16 @@ impl Scene {
                 return emitted + (throughput * self.skybox.color);
             }
         }
-        Vec3::new([0.0, 0.0, 0.0])
+        Float3::new([0.0, 0.0, 0.0])
     }
 
-    fn light_ray(&self, hit_record: &HitRecord, light: &dyn Light) -> Vec3<FloatSize> {
+    fn light_ray(&self, hit_record: &HitRecord, light: &dyn Light) -> Float3 {
         let light_direction = light.position() - hit_record.point;
         let distance_to_light = light_direction.magnitude();
         let shadow_ray = Ray::new(hit_record.point, light_direction.normalize());
         for object in self.objects.iter() {
             if let Some(_record) = object.hit(&shadow_ray, 0.001, distance_to_light) {
-                return Vec3::new([0.0, 0.0, 0.0]);
+                return Float3::new([0.0, 0.0, 0.0]);
             }
         }
 
@@ -120,12 +121,12 @@ impl Scene {
         let mut lights: Vec<Box<dyn Light>> = Vec::new();
 
         let camera = Camera {
-            position: Vec3::from_toml(&toml["camera"]["position"]),
-            rotation: Vec3::from_toml(&toml["camera"]["rotation"]),
+            position: Float3::from_toml(&toml["camera"]["position"]),
+            rotation: Float3::from_toml(&toml["camera"]["rotation"]),
         };
 
         let skybox = Skybox {
-            color: Vec3::from_toml(&toml["skybox"]["color"]),
+            color: Float3::from_toml(&toml["skybox"]["color"]),
         };
 
         for object in toml["objects"].as_array().unwrap() {
@@ -133,7 +134,7 @@ impl Scene {
             let material = match &object.get("material") {
                 Some(material) => Material::from_toml(material),
                 None => match &object.get("color") {
-                    Some(color) => Material::from_color(Vec3::from_toml(color)),
+                    Some(color) => Material::from_color(Float3::from_toml(color)),
                     None => Material::default(),
                 },
             };
@@ -142,7 +143,7 @@ impl Scene {
                 Ok(object_type) => match object_type {
                     ObjectType::Sphere => {
                         objects.push(Box::new(Sphere::new(
-                            Vec3::from_toml(&object["position"]),
+                            Float3::from_toml(&object["position"]),
                             object["radius"].as_float().unwrap(),
                             material,
                         )));
@@ -150,14 +151,14 @@ impl Scene {
                     ObjectType::Quad => {
                         let infinite = object["infinite"].as_bool().unwrap_or(false);
                         let scale_vec = match &object.get("scale") {
-                            Some(scale) => Vec2::from_toml(scale),
-                            None => Vec2::new([1.0, 1.0]),
+                            Some(scale) => Float2::from_toml(scale),
+                            None => Float2::new([1.0, 1.0]),
                         };
                         objects.push(Box::new(Quad {
-                            a: Vec3::from_toml(&object["point1"]),
-                            b: Vec3::from_toml(&object["point2"]),
-                            c: Vec3::from_toml(&object["point3"]),
-                            d: Vec3::from_toml(&object["point4"]),
+                            a: Float3::from_toml(&object["point1"]),
+                            b: Float3::from_toml(&object["point2"]),
+                            c: Float3::from_toml(&object["point3"]),
+                            d: Float3::from_toml(&object["point4"]),
                             scale: scale_vec,
                             material,
                             infinite,
@@ -165,15 +166,15 @@ impl Scene {
                     }
                     ObjectType::Plane => {
                         objects.push(Box::new(crate::object::plane::Plane::new(
-                            Vec3::from_toml(&object["point"]),
-                            Vec3::from_toml(&object["normal"]),
+                            Float3::from_toml(&object["point"]),
+                            Float3::from_toml(&object["normal"]),
                             material,
                         )));
                     }
                     ObjectType::Cube => {
                         objects.push(Box::new(crate::object::cube::Cube::new(
-                            Vec3::from_toml(&object["min"]),
-                            Vec3::from_toml(&object["max"]),
+                            Float3::from_toml(&object["min"]),
+                            Float3::from_toml(&object["max"]),
                             material,
                         )));
                     }
@@ -194,8 +195,8 @@ impl Scene {
                     Ok(light_type_enum) => match light_type_enum {
                         LightType::PointLight => {
                             lights.push(Box::new(PointLight::new(
-                                Vec3::from_toml(&light["position"]),
-                                Vec3::from_toml(&light["color"]),
+                                Float3::from_toml(&light["position"]),
+                                Float3::from_toml(&light["color"]),
                             )));
                         }
                         LightType::AreaLight => {

@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["oidn"]
+default = ["oidn", "vector_constgenerics"]
 small_rng = ["rand/small_rng"]
 oidn = ["dep:oidn", "dep:flate2", "dep:tar", "dep:zip"]
+vector_constgenerics = []
 
 [dependencies]
 cfg-if = "1.0.0"

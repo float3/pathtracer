@@ -3,14 +3,15 @@ use std::str::FromStr;
 use crate::{
     material::Material,
     ray::Ray,
-    scene::FloatSize,
-    utils::vector::{Vec2, Vec3},
+    scene::Flooat,
+    utils::vector::{Float2, Float3},
 };
 
 pub mod cube;
 pub mod plane;
 pub mod quad;
 pub mod sphere;
+#[allow(dead_code)]
 pub mod triangle_mesh;
 
 pub enum ObjectType {
@@ -36,14 +37,14 @@ impl FromStr for ObjectType {
 }
 
 pub trait Hittable: Sync + std::fmt::Debug {
-    fn hit(&self, ray: &Ray, t_min: FloatSize, t_max: FloatSize) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord>;
 }
 #[derive(Debug)]
 pub struct HitRecord<'a> {
-    pub point: Vec3<FloatSize>,
-    pub normal: Vec3<FloatSize>,
-    pub t: FloatSize,
+    pub point: Float3,
+    pub normal: Float3,
+    pub t: Flooat,
     pub front_face: bool,
     pub material: &'a Material,
-    pub uv: Option<Vec2<FloatSize>>,
+    pub uv: Option<Float2>,
 }
