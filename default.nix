@@ -6,9 +6,11 @@ pkgs.mkShell {
     pkg-config
     rustup
     gcc
+    openimagedenoise
   ];
 
   shellHook = ''
+    export OIDN_DIR="${pkgs.openimagedenoise}/lib";
     export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH";
     export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
     export OPENSSL_DIR=${pkgs.openssl.dev}
