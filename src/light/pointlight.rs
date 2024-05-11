@@ -1,4 +1,4 @@
-use crate::{scene::Flooat, utils::vector::Float3};
+use crate::{scene::Float0, utils::vector::Float3};
 
 use super::Light;
 #[derive(Debug, Clone, Copy)]
@@ -22,7 +22,7 @@ impl Light for PointLight {
         self.position
     }
 
-    fn intensity(&self) -> Flooat {
+    fn intensity(&self) -> Float0 {
         self.color.length()
     }
 

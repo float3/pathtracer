@@ -1,4 +1,4 @@
-use crate::{scene::Flooat, utils::vector::Float3};
+use crate::{scene::Float0, utils::vector::Float3};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
@@ -26,7 +26,7 @@ impl Ray {
         Ray { origin, direction }
     }
 
-    pub fn at(&self, root: Flooat) -> Float3 {
+    pub fn at(&self, root: Float0) -> Float3 {
         self.origin + self.direction.scale(root)
     }
 }

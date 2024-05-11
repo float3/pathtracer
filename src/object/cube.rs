@@ -1,4 +1,4 @@
-use crate::{material::Material, ray::Ray, scene::Flooat, utils::vector::Float3};
+use crate::{material::Material, ray::Ray, scene::Float0, utils::vector::Float3};
 
 use super::{HitRecord, Hittable};
 
@@ -16,7 +16,7 @@ impl Cube {
 }
 
 impl Hittable for Cube {
-    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord> {
         let mut t_min = t_min;
         let mut t_max = t_max;
         for i in 0..3 {

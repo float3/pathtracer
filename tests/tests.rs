@@ -5,7 +5,7 @@ extern crate pathtracer;
 fn sample_test() {
     use std::fs::File;
 
-    use pathtracer::scene::Flooat;
+    use pathtracer::scene::Float0;
     use png::{text_metadata::ITXtChunk, BitDepth, ColorType, Encoder};
 
     let pathtracer = pathtracer::pathtracer::PathTracer::new(1280, 720, 256);
@@ -30,7 +30,7 @@ fn sample_test() {
     let modbuffer = &buffer
         .iter()
         .flat_map(|color| {
-            let color = color.scale(255.0 as Flooat);
+            let color = color.scale(255.0 as Float0);
             vec![(color.0[0]) as u8, (color.0[1]) as u8, (color.0[2]) as u8]
         })
         .collect::<Vec<u8>>();

@@ -3,7 +3,7 @@ use std::str::FromStr;
 use crate::{
     material::Material,
     ray::Ray,
-    scene::Flooat,
+    scene::Float0,
     utils::vector::{Float2, Float3},
 };
 
@@ -37,13 +37,13 @@ impl FromStr for ObjectType {
 }
 
 pub trait Hittable: Sync + std::fmt::Debug {
-    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord>;
 }
 #[derive(Debug)]
 pub struct HitRecord<'a> {
     pub point: Float3,
     pub normal: Float3,
-    pub t: Flooat,
+    pub t: Float0,
     pub front_face: bool,
     pub material: &'a Material,
     pub uv: Option<Float2>,

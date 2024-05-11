@@ -1,16 +1,16 @@
-use crate::{material::Material, ray::Ray, scene::Flooat, utils::vector::Float3};
+use crate::{material::Material, ray::Ray, scene::Float0, utils::vector::Float3};
 
 use super::{HitRecord, Hittable};
 
 #[derive(Debug)]
 pub struct Sphere {
     center: Float3,
-    radius: Flooat,
+    radius: Float0,
     material: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Float3, radius: Flooat, material: Material) -> Self {
+    pub fn new(center: Float3, radius: Float0, material: Material) -> Self {
         Sphere {
             center,
             radius,
@@ -20,7 +20,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b = oc.dot(&ray.direction);

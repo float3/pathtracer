@@ -3,7 +3,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 use num_traits::{Float, FromPrimitive};
 use toml::Value;
 
-use crate::scene::{Flooat, Int};
+use crate::scene::{Float0, Int};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vector<T, const N: usize>(pub [T; N]);
@@ -266,52 +266,52 @@ where
     }
 }
 
-pub type Float2 = Vector<Flooat, 2>;
-pub type Float3 = Vector<Flooat, 3>;
-pub type Float4 = Vector<Flooat, 4>;
+pub type Float2 = Vector<Float0, 2>;
+pub type Float3 = Vector<Float0, 3>;
+pub type Float4 = Vector<Float0, 4>;
 
 pub type Int2 = Vector<Int, 2>;
 pub type Int3 = Vector<Int, 3>;
 pub type Int4 = Vector<Int, 4>;
 
 impl Float2 {
-    pub fn x(&self) -> Flooat {
+    pub fn x(&self) -> Float0 {
         self.0[0]
     }
 
-    pub fn y(&self) -> Flooat {
+    pub fn y(&self) -> Float0 {
         self.0[1]
     }
 }
 
 impl Float3 {
-    pub fn x(&self) -> Flooat {
+    pub fn x(&self) -> Float0 {
         self.0[0]
     }
 
-    pub fn y(&self) -> Flooat {
+    pub fn y(&self) -> Float0 {
         self.0[1]
     }
 
-    pub fn z(&self) -> Flooat {
+    pub fn z(&self) -> Float0 {
         self.0[2]
     }
 }
 
 impl Float4 {
-    pub fn x(&self) -> Flooat {
+    pub fn x(&self) -> Float0 {
         self.0[0]
     }
 
-    pub fn y(&self) -> Flooat {
+    pub fn y(&self) -> Float0 {
         self.0[1]
     }
 
-    pub fn z(&self) -> Flooat {
+    pub fn z(&self) -> Float0 {
         self.0[2]
     }
 
-    pub fn w(&self) -> Flooat {
+    pub fn w(&self) -> Float0 {
         self.0[3]
     }
 }

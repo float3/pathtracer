@@ -1,7 +1,7 @@
 use crate::{
     object::HitRecord,
     ray::Ray,
-    scene::{Flooat, RNGType, PI},
+    scene::{Float0, RNGType, PI},
     utils::{
         matrix::Float3x3,
         vector::{Float2, Float3},
@@ -13,7 +13,7 @@ use rand::prelude::*;
 #[derive(Debug)]
 pub struct Material {
     pub albedo: Float3,
-    pub reflectivity: Flooat,
+    pub reflectivity: Float0,
     pub checkered: bool,
 }
 
@@ -31,12 +31,12 @@ fn generate_coordinate_system(normal: &Float3) -> (Float3, Float3) {
 }
 
 #[allow(dead_code)]
-fn random_unit_vector(rand_state: &mut RNGType) -> (Float3, Flooat) {
-    fn pdf() -> Flooat {
-        1.0 / (4.0 * PI as Flooat)
+fn random_unit_vector(rand_state: &mut RNGType) -> (Float3, Float0) {
+    fn pdf() -> Float0 {
+        1.0 / (4.0 * PI as Float0)
     }
-    let theta: Flooat = rand_state.gen_range(0.0..(PI as Flooat));
-    let phi: Flooat = rand_state.gen_range(0.0..(2.0 * PI as Flooat));
+    let theta: Float0 = rand_state.gen_range(0.0..(PI as Float0));
+    let phi: Float0 = rand_state.gen_range(0.0..(2.0 * PI as Float0));
     (
         Float3::new([
             theta.sin() * phi.cos(),
@@ -54,15 +54,15 @@ pub enum SamplingFunctions {
 }
 
 #[allow(dead_code)]
-fn cosine_weighted_sample_1(normal: &Float3, rand_state: &mut RNGType) -> (Float3, Flooat) {
-    fn pdf(cos_theta: Flooat) -> Flooat {
-        cos_theta / PI as Flooat
+fn cosine_weighted_sample_1(normal: &Float3, rand_state: &mut RNGType) -> (Float3, Float0) {
+    fn pdf(cos_theta: Float0) -> Float0 {
+        cos_theta / PI as Float0
     }
     let (v, u) = generate_coordinate_system(normal);
-    let r1: Flooat = rand_state.gen_range(0.0..1.0);
-    let r2: Flooat = rand_state.gen_range(0.0..1.0);
+    let r1: Float0 = rand_state.gen_range(0.0..1.0);
+    let r2: Float0 = rand_state.gen_range(0.0..1.0);
 
-    let phi = 2.0 * PI as Flooat * r1;
+    let phi = 2.0 * PI as Float0 * r1;
     let r = r2.sqrt();
     let x = r * phi.cos();
     let y = (1.0 - r2).sqrt(); // this is cos_theta
@@ -77,16 +77,16 @@ fn cosine_weighted_sample_1(normal: &Float3, rand_state: &mut RNGType) -> (Float
 }
 
 #[allow(dead_code)]
-fn cosine_weighted_sample_2(normal: &Float3, rand_state: &mut RNGType) -> (Float3, Flooat) {
-    fn pdf(cos_theta: Flooat) -> Flooat {
-        cos_theta / PI as Flooat
+fn cosine_weighted_sample_2(normal: &Float3, rand_state: &mut RNGType) -> (Float3, Float0) {
+    fn pdf(cos_theta: Float0) -> Float0 {
+        cos_theta / PI as Float0
     }
     let (v, u) = generate_coordinate_system(normal);
-    let r1: Flooat = rand_state.gen_range(0.0..1.0);
-    let r2: Flooat = rand_state.gen_range(0.0..1.0);
+    let r1: Float0 = rand_state.gen_range(0.0..1.0);
+    let r2: Float0 = rand_state.gen_range(0.0..1.0);
     let cos_theta = r1.sqrt();
     let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-    let phi = r2 * 2.0 * PI as Flooat;
+    let phi = r2 * 2.0 * PI as Float0;
 
     let local_sample = Float3::new([sin_theta * phi.cos(), cos_theta, sin_theta * phi.sin()]);
     let transformation_matrix = Float3x3::new_from_columns([u.0, normal.0, v.0]);
@@ -102,7 +102,7 @@ impl Material {
         hit_record: &HitRecord,
         rand_state: &mut RNGType,
         sampletype: &SamplingFunctions,
-    ) -> (Ray, Flooat) {
+    ) -> (Ray, Float0) {
         let mut random = match sampletype {
             SamplingFunctions::RandomUnitVector => random_unit_vector(rand_state),
             SamplingFunctions::CosineWeightedSample1 => {
@@ -242,15 +242,15 @@ mod tests {
     use super::*;
 
     #[allow(dead_code)]
-    fn avg_cosine(samples: Vec<Float3>, normal: Float3) -> Flooat {
+    fn avg_cosine(samples: Vec<Float3>, normal: Float3) -> Float0 {
         samples
             .iter()
             .map(|v| {
                 let cos_theta = v.dot(&normal) / (v.length() * normal.length());
                 cos_theta.max(0.0)
             })
-            .sum::<Flooat>()
-            / samples.len() as Flooat
+            .sum::<Float0>()
+            / samples.len() as Float0
     }
 
     #[test]
@@ -261,9 +261,9 @@ mod tests {
             .map(|_| cosine_weighted_sample_1(&normal, &mut rng).0)
             .collect();
 
-        let average_cosine: Flooat =
-            samples.iter().map(|v| v.y()).sum::<Flooat>() / samples.len() as Flooat;
-        let expected_average_cosine: Flooat = 2.0 / PI as Flooat;
+        let average_cosine: Float0 =
+            samples.iter().map(|v| v.y()).sum::<Float0>() / samples.len() as Float0;
+        let expected_average_cosine: Float0 = 2.0 / PI as Float0;
 
         assert!(
             (average_cosine - expected_average_cosine).abs() < 0.05,
@@ -280,9 +280,9 @@ mod tests {
             .map(|_| cosine_weighted_sample_2(&normal, &mut rng).0)
             .collect();
 
-        let average_cosine: Flooat =
-            samples.iter().map(|v| v.y()).sum::<Flooat>() / samples.len() as Flooat;
-        let expected_average_cosine: Flooat = 2.0 / PI as Flooat;
+        let average_cosine: Float0 =
+            samples.iter().map(|v| v.y()).sum::<Float0>() / samples.len() as Float0;
+        let expected_average_cosine: Float0 = 2.0 / PI as Float0;
 
         assert!(
             (average_cosine - expected_average_cosine).abs() < 0.05,

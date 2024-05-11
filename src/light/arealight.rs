@@ -1,4 +1,4 @@
-use crate::{scene::Flooat, utils::vector::Float3};
+use crate::{scene::Float0, utils::vector::Float3};
 
 use super::Light;
 
@@ -14,7 +14,7 @@ impl Light for Arealight {
         todo!()
     }
 
-    fn intensity(&self) -> Flooat {
+    fn intensity(&self) -> Float0 {
         todo!()
     }
 

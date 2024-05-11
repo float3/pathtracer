@@ -2,7 +2,7 @@ use rand::Rng;
 
 use crate::{
     ray::Ray,
-    scene::{Flooat, RNGType},
+    scene::{Float0, RNGType},
     utils::{matrix::Float3x3, vector::Float3},
 };
 
@@ -15,14 +15,14 @@ pub struct Camera {
 impl Camera {
     pub fn get_ray(
         &self,
-        x: Flooat,
-        y: Flooat,
-        width: Flooat,
-        height: Flooat,
+        x: Float0,
+        y: Float0,
+        width: Float0,
+        height: Float0,
         rand_state: &mut RNGType,
     ) -> Ray {
-        let x = x + rand_state.gen_range(0.0..1.0) as Flooat;
-        let y = y + rand_state.gen_range(0.0..1.0) as Flooat;
+        let x = x + rand_state.gen_range(0.0..1.0) as Float0;
+        let y = y + rand_state.gen_range(0.0..1.0) as Float0;
 
         let x0 = (x / width) * 2.0 - 1.0;
         let y0 = (y / height) * 2.0 - 1.0;

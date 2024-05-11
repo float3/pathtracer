@@ -1,4 +1,4 @@
-use crate::{material::Material, scene::Flooat, utils::vector::Float3};
+use crate::{material::Material, scene::Float0, utils::vector::Float3};
 
 use super::{HitRecord, Hittable};
 
@@ -14,8 +14,8 @@ impl Hittable for TriangleMesh {
     fn hit(
         &self,
         _ray: &crate::ray::Ray,
-        _arg: Flooat,
-        _closest_so_far: Flooat,
+        _arg: Float0,
+        _closest_so_far: Float0,
     ) -> Option<HitRecord> {
         unimplemented!()
     }

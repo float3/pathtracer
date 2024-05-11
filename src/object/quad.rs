@@ -1,7 +1,7 @@
 use crate::{
     material::Material,
     ray::Ray,
-    scene::Flooat,
+    scene::Float0,
     utils::vector::{Float2, Float3},
 };
 
@@ -19,7 +19,7 @@ pub struct Quad {
 }
 
 impl Hittable for Quad {
-    fn hit(&self, ray: &Ray, t_min: Flooat, t_max: Flooat) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord> {
         let normal = (self.b - self.a).cross(&(self.c - self.a)).normalize();
         let denom = ray.direction.dot(&normal);
 

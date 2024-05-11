@@ -12,9 +12,9 @@ use crate::{
     utils::vector::{Float2, Float3},
 };
 
-pub type Flooat = f64;
+pub type Float0 = f64;
 pub type Int = i64;
-pub const PI: Flooat = std::f64::consts::PI as Flooat;
+pub const PI: Float0 = std::f64::consts::PI as Float0;
 
 cfg_if! {
     if #[cfg(feature="small_rng")] {
@@ -41,8 +41,8 @@ impl Scene {
         illumination
     }
 
-    pub fn hit(&self, ray: &Ray, arg: Flooat) -> Option<HitRecord> {
-        let mut closest_so_far = Flooat::INFINITY;
+    pub fn hit(&self, ray: &Ray, arg: Float0) -> Option<HitRecord> {
+        let mut closest_so_far = Float0::INFINITY;
         let mut hit_record = None;
         for object in self.objects.iter() {
             if let Some(record) = object.hit(ray, arg, closest_so_far) {
@@ -82,7 +82,7 @@ impl Scene {
                     let brdf = hit_record
                         .material
                         .color(&hit_record.uv)
-                        .scale(1.0 as Flooat / PI as Flooat);
+                        .scale(1.0 as Float0 / PI as Float0);
 
                     let cos_theta = ray.direction.dot(&hit_record.normal);
 

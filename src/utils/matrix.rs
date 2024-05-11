@@ -3,7 +3,7 @@ use std::{
     ops::{Add, AddAssign, Index, IndexMut, Mul},
 };
 
-use crate::scene::{Flooat, Int};
+use crate::scene::{Float0, Int};
 
 use super::vector::Vector;
 
@@ -88,22 +88,22 @@ where
     }
 }
 
-pub type Float1x1 = Matrix<Flooat, 1, 1>;
+pub type Float1x1 = Matrix<Float0, 1, 1>;
 // pub type Float1x2 = Matrix<FloatSize, 1, 2>;
 // pub type Float1x3 = Matrix<FloatSize, 1, 3>;
 // pub type Float1x4 = Matrix<FloatSize, 1, 4>;
 // pub type Float2x1 = Matrix<FloatSize, 2, 1>;
-pub type Float2x2 = Matrix<Flooat, 2, 2>;
+pub type Float2x2 = Matrix<Float0, 2, 2>;
 // pub type Float2x3 = Matrix<FloatSize, 2, 3>;
 // pub type Float2x4 = Matrix<FloatSize, 2, 4>;
 // pub type Float3x1 = Matrix<FloatSize, 3, 1>;
 // pub type Float3x2 = Matrix<FloatSize, 3, 2>;
-pub type Float3x3 = Matrix<Flooat, 3, 3>;
+pub type Float3x3 = Matrix<Float0, 3, 3>;
 // pub type Float3x4 = Matrix<FloatSize, 3, 4>;
 // pub type Float4x1 = Matrix<FloatSize, 4, 1>;
 // pub type Float4x2 = Matrix<FloatSize, 4, 2>;
 // pub type Float4x3 = Matrix<FloatSize, 4, 3>;
-pub type Float4x4 = Matrix<Flooat, 4, 4>;
+pub type Float4x4 = Matrix<Float0, 4, 4>;
 pub type Int1x1 = Matrix<Int, 1, 1>;
 pub type Int2x2 = Matrix<Int, 2, 2>;
 pub type Int3x3 = Matrix<Int, 3, 3>;

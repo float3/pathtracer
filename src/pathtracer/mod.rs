@@ -1,5 +1,5 @@
 use crate::material::SamplingFunctions;
-use crate::scene::{Flooat, RNGType, Scene};
+use crate::scene::{Float0, RNGType, Scene};
 use crate::utils::vector::Float3;
 use rayon::prelude::*;
 
@@ -34,10 +34,10 @@ impl PathTracer {
 
                 for _sample in 0..self.samples {
                     let ray = scene.camera.get_ray(
-                        x as Flooat,
-                        y as Flooat,
-                        self.width as Flooat,
-                        self.height as Flooat,
+                        x as Float0,
+                        y as Float0,
+                        self.width as Float0,
+                        self.height as Float0,
                         &mut rand_state,
                     );
                     let is_left = x < self.width / 2;
@@ -54,7 +54,7 @@ impl PathTracer {
                     color += scene.trace_ray(&ray, 10, &mut rand_state, &sample_type);
                 }
 
-                *pixel = color.scale(1.0 / self.samples as Flooat);
+                *pixel = color.scale(1.0 / self.samples as Float0);
             });
 
         #[cfg(feature = "oidn")]
@@ -86,7 +86,7 @@ fn denoise_image(width: usize, height: usize, buffer: &mut [Float3]) {
         let start = i * 3;
         let end = start + 3;
         let slice = &input[start..end];
-        *pixel = Float3::new([slice[0] as Flooat, slice[1] as Flooat, slice[2] as Flooat]);
+        *pixel = Float3::new([slice[0] as Float0, slice[1] as Float0, slice[2] as Float0]);
     }
 }
 
