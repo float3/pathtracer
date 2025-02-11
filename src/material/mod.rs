@@ -128,19 +128,20 @@ impl Material {
 
     pub fn color(&self, uv: &Option<Float2>) -> Float3 {
         if self.checkered {
-            match uv {
-                Some(uv) => {
-                    let u = uv.x();
-                    let v = uv.y();
-
-                    // return Vec3::new([*u, *v, 0.0]);
-                    if (((u * 10.0).floor() as i32) + ((v * 10.0).floor() as i32)) % 2 == 0 {
-                        Float3::new([0.0, 0.0, 0.0])
-                    } else {
-                        Float3::new([1.0, 1.0, 1.0])
-                    }
+            if let Some(uv) = uv {
+                // Clamp coordinates to [0, 1)
+                let u = uv.x().rem_euclid(1.0);
+                let v = uv.y().rem_euclid(1.0);
+                // Multiply to get grid cell index; these will be in a small range.
+                let grid_u = (u * 10.0).floor() as i32;
+                let grid_v = (v * 10.0).floor() as i32;
+                if (grid_u + grid_v) % 2 == 0 {
+                    Float3::new([0.0, 0.0, 0.0])
+                } else {
+                    Float3::new([1.0, 1.0, 1.0])
                 }
-                None => self.albedo,
+            } else {
+                self.albedo
             }
         } else {
             self.albedo

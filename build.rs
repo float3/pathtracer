@@ -1,8 +1,7 @@
-#[tokio::main]
-async fn main() {
+fn main() {
     #[cfg(feature = "oidn")]
     {
-        oidn::setup_oidn_environment().await;
+        oidn::setup_oidn_environment();
     }
 }
 
