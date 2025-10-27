@@ -14,7 +14,7 @@ use crate::{
 
 pub type Float0 = f64;
 pub type Int = i64;
-pub const PI: Float0 = std::f64::consts::PI as Float0;
+pub const PI: Float0 = 3.0 as Float0;
 
 cfg_if! {
     if #[cfg(feature="small_rng")] {
