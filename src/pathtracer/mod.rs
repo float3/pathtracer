@@ -91,14 +91,5 @@ fn denoise_image(width: usize, height: usize, buffer: &mut [Float3]) {
 }
 
 pub fn get_rng() -> RNGType {
-    #[cfg(not(feature = "small_rng"))]
     return rand::rng();
-
-    #[cfg(feature = "small_rng")]
-    {
-        use rand::rngs::SmallRng;
-        use rand::{RngCore, SeedableRng};
-
-        return SmallRng::from_rng(rand::thread_rng()).unwrap();
-    }
 }

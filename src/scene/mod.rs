@@ -16,13 +16,7 @@ pub type Float0 = f64;
 pub type Int = i64;
 pub const PI: Float0 = std::f64::consts::PI as Float0;
 
-cfg_if! {
-    if #[cfg(feature="small_rng")] {
-        pub type RNGType = rand::rngs::SmallRng;
-    } else {
-        pub type RNGType = rand::rngs::ThreadRng;
-    }
-}
+pub type RNGType = rand::rngs::ThreadRng;
 
 #[derive(Debug)]
 pub struct Scene {
