@@ -539,22 +539,22 @@ mod vector_tests {
     #[test]
     fn test_from_toml_success() {
         let toml_str = "values = [1.0]";
-        let toml_value: Value = toml_str.parse().unwrap();
+        let toml_value: toml::Value = toml::from_str(toml_str).unwrap();
         let vector: Vector<f64, 1> = Vector::from_toml(toml_value.get("values").unwrap());
         assert_eq!(vector.0, [1.0]);
 
         let toml_str = "values = [1.0, 2.0]";
-        let toml_value: Value = toml_str.parse().unwrap();
+        let toml_value: toml::Value = toml::from_str(toml_str).unwrap();
         let vector: Vector<f64, 2> = Vector::from_toml(toml_value.get("values").unwrap());
         assert_eq!(vector.0, [1.0, 2.0]);
 
         let toml_str = "values = [1.0, 2.0, 3.0]";
-        let toml_value: Value = toml_str.parse().unwrap();
+        let toml_value: toml::Value = toml::from_str(toml_str).unwrap();
         let vector: Vector<f64, 3> = Vector::from_toml(toml_value.get("values").unwrap());
         assert_eq!(vector.0, [1.0, 2.0, 3.0]);
 
         let toml_str = "values = [1.0, 2.0, 3.0, 4.0]";
-        let toml_value: Value = toml_str.parse().unwrap();
+        let toml_value: toml::Value = toml::from_str(toml_str).unwrap();
         let vector: Vector<f64, 4> = Vector::from_toml(toml_value.get("values").unwrap());
         assert_eq!(vector.0, [1.0, 2.0, 3.0, 4.0]);
     }

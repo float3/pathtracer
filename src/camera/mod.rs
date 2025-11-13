@@ -21,8 +21,8 @@ impl Camera {
         height: Float0,
         rand_state: &mut RNGType,
     ) -> Ray {
-        let x = x + rand_state.gen_range(0.0..1.0) as Float0;
-        let y = y + rand_state.gen_range(0.0..1.0) as Float0;
+        let x = x + rand_state.random_range(0.0..1.0) as Float0;
+        let y = y + rand_state.random_range(0.0..1.0) as Float0;
 
         let x0 = (x / width) * 2.0 - 1.0;
         let y0 = (y / height) * 2.0 - 1.0;

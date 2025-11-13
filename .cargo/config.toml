@@ -1,4 +1,4 @@
 [env]
 OIDN_DIR = { value = "./oidn/oidn", reative = true }
 LD_LIBRARY_PATH = { value = "./oidn/oidn/lib", relative = true }
-OIDN_VER = "v2.2.2"
+OIDN_VER = "v2.3.3"

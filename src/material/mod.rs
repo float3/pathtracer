@@ -35,8 +35,8 @@ fn random_unit_vector(rand_state: &mut RNGType) -> (Float3, Float0) {
     fn pdf() -> Float0 {
         1.0 / (4.0 * PI as Float0)
     }
-    let theta: Float0 = rand_state.gen_range(0.0..(PI as Float0));
-    let phi: Float0 = rand_state.gen_range(0.0..(2.0 * PI as Float0));
+    let theta: Float0 = rand_state.random_range(0.0..(PI as Float0));
+    let phi: Float0 = rand_state.random_range(0.0..(2.0 * PI as Float0));
     (
         Float3::new([
             theta.sin() * phi.cos(),
@@ -59,8 +59,8 @@ fn cosine_weighted_sample_1(normal: &Float3, rand_state: &mut RNGType) -> (Float
         cos_theta / PI as Float0
     }
     let (v, u) = generate_coordinate_system(normal);
-    let r1: Float0 = rand_state.gen_range(0.0..1.0);
-    let r2: Float0 = rand_state.gen_range(0.0..1.0);
+    let r1: Float0 = rand_state.random_range(0.0..1.0);
+    let r2: Float0 = rand_state.random_range(0.0..1.0);
 
     let phi = 2.0 * PI as Float0 * r1;
     let r = r2.sqrt();
@@ -82,8 +82,8 @@ fn cosine_weighted_sample_2(normal: &Float3, rand_state: &mut RNGType) -> (Float
         cos_theta / PI as Float0
     }
     let (v, u) = generate_coordinate_system(normal);
-    let r1: Float0 = rand_state.gen_range(0.0..1.0);
-    let r2: Float0 = rand_state.gen_range(0.0..1.0);
+    let r1: Float0 = rand_state.random_range(0.0..1.0);
+    let r2: Float0 = rand_state.random_range(0.0..1.0);
     let cos_theta = r1.sqrt();
     let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
     let phi = r2 * 2.0 * PI as Float0;

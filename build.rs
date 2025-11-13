@@ -1,163 +1,162 @@
 fn main() {
     #[cfg(feature = "oidn")]
-    {
-        futures::executor::block_on(oidn::setup_oidn_environment());
-    }
+    oidn::setup_oidn_environment();
 }
 
 #[cfg(feature = "oidn")]
 mod oidn {
     use std::{
-        env,
+        env, fs, io,
         path::{Path, PathBuf},
     };
 
-    pub fn get_oidn_dir() -> String {
-        env::var("OIDN_DIR").expect("OIDN_DIR environment variable not set. Please set this to the OIDN install directory root.")
+    fn manifest_dir() -> PathBuf {
+        PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
+    }
+
+    pub fn get_oidn_dir() -> PathBuf {
+        manifest_dir().join(
+            env::var("OIDN_DIR")
+                .expect("OIDN_DIR env var not set (set it to path like ./oidn/oidn)"),
+        )
     }
 
     pub fn get_oidn_version() -> String {
-        env::var("OIDN_VER").expect("OIDN_VER environment variable not set. Please set this to the OIDN version you want to install.")
+        env::var("OIDN_VER").expect("OIDN_VER env var not set (ex: v2.3.3)")
     }
 
-    pub(crate) async fn setup_oidn_environment() {
+    pub fn setup_oidn_environment() {
         let oidn_dir = get_oidn_dir();
-        let oidn_dir = Path::new(&oidn_dir);
+
+        // extraction ALWAYS re-runs; good for dev, deterministic
+        extract_oidn(&oidn_dir).expect("Failed to extract OIDN binaries");
+        copy_oidn_binaries(&oidn_dir.join("bin"));
+    }
+
+    pub fn extract_oidn(oidn_dir: &Path) -> io::Result<()> {
+        let target = env::var("TARGET").expect("TARGET environment variable not set");
+
+        let archive_path = construct_archive_path(&target);
+        if !archive_path.exists() {
+            panic!(
+                "OIDN archive not found: {}\nExpected archive inside: {}",
+                archive_path.display(),
+                manifest_dir().display()
+            );
+        }
+
+        let ext = archive_path.extension().and_then(|x| x.to_str());
+
+        match ext {
+            Some("zip") => extract_zip(&archive_path, oidn_dir),
+            Some("gz") => extract_tar_gz(&archive_path, oidn_dir),
+            _ => panic!("Unknown OIDN archive format: {:?}", ext),
+        }
+    }
+
+    pub fn construct_archive_path(target: &str) -> PathBuf {
+        let ver = get_oidn_version().trim_start_matches('v').to_string();
+
+        let file = if target.contains("windows") {
+            format!("oidn-{ver}.x64.windows.zip")
+        } else if target.contains("linux") {
+            format!("oidn-{ver}.x86_64.linux.tar.gz")
+        } else if target.contains("darwin") && target.contains("aarch64") {
+            format!("oidn-{ver}.arm64.macos.tar.gz")
+        } else if target.contains("darwin") {
+            format!("oidn-{ver}.x86_64.macos.tar.gz")
+        } else {
+            panic!("Unsupported target triple for OIDN: {target}");
+        };
+
+        manifest_dir().join("oidn").join(file)
+    }
+
+    pub fn extract_zip(archive_path: &Path, oidn_dir: &Path) -> io::Result<()> {
+        let file = fs::File::open(archive_path)?;
+        let mut archive = zip::ZipArchive::new(file)?;
 
         if oidn_dir.exists() {
-            return;
+            fs::remove_dir_all(oidn_dir)?;
+        }
+        fs::create_dir_all(oidn_dir)?;
+
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i)?;
+            let name = file.mangled_name();
+            let name = name.to_string_lossy();
+
+            let relative = name.split('\\').skip(1).collect::<Vec<_>>().join("/");
+
+            let outpath = oidn_dir.join(relative);
+
+            if file.name().ends_with('/') {
+                fs::create_dir_all(&outpath)?;
+            } else {
+                if let Some(parent) = outpath.parent() {
+                    fs::create_dir_all(parent)?;
+                }
+                let mut out = fs::File::create(&outpath)?;
+                io::copy(&mut file, &mut out)?;
+            }
         }
 
-        extract_oidn(oidn_dir)
-            .await
-            .expect("Failed to extract OIDN binaries");
-        copy_oidn_binaries(&oidn_dir.join("bin")).await;
-    }
-
-    pub(crate) async fn extract_oidn(oidn_dir: &Path) -> std::io::Result<()> {
-        let target = env::var("TARGET").expect("TARGET environment variable not set.");
-        let archive_path = construct_archive_path(oidn_dir, &target);
-
-        match archive_path.extension().and_then(std::ffi::OsStr::to_str) {
-            Some("zip") => {
-                extract_zip(&archive_path, oidn_dir).await?;
-            }
-            Some("gz") => {
-                extract_tar_gz(&archive_path, oidn_dir).await?;
-            }
-            Some(ext) => panic!("Unknown archive format: {}", ext),
-            None => panic!("No extension found"),
-        }
         Ok(())
     }
 
-    pub(crate) fn construct_archive_path(oidn_dir: &Path, target: &str) -> PathBuf {
-        let oidn_dir_parent = oidn_dir
-            .parent()
-            .expect("OIDN directory has no parent")
-            .to_path_buf();
+    pub fn extract_tar_gz(archive_path: &Path, oidn_dir: &Path) -> io::Result<()> {
+        let tar_gz = fs::File::open(archive_path)?;
+        let tar = flate2::read::GzDecoder::new(tar_gz);
+        let mut archive = tar::Archive::new(tar);
 
-        let version = get_oidn_version();
+        let parent_dir = oidn_dir.parent().unwrap();
 
-        let version = version.trim_start_matches('v');
-        let file_name = if target.contains("windows") {
-            format!("oidn-{}.x64.windows.zip", version)
-        } else if target.contains("linux") {
-            format!("oidn-{}.x86_64.linux.tar.gz", version)
-        } else if target.contains("darwin") && target.contains("aarch64") {
-            format!("oidn-{}.arm64.macos.tar.gz", version)
-        } else if target.contains("darwin") {
-            format!("oidn-{}.x86_64.macos.tar.gz", version)
-        } else {
-            panic!("Unsupported target: {}", target);
-        };
+        if oidn_dir.exists() {
+            fs::remove_dir_all(oidn_dir)?;
+        }
 
-        oidn_dir_parent.join(file_name)
+        archive.unpack(parent_dir)?;
+
+        let extracted_dir = fs::read_dir(parent_dir)?
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .find(|p| p.is_dir() && p.file_name().unwrap().to_string_lossy().contains("oidn"))
+            .expect("Could not locate extracted OIDN directory");
+
+        fs::rename(extracted_dir, oidn_dir)?;
+
+        Ok(())
     }
 
-    pub(crate) async fn extract_zip(archive_path: &Path, oidn_dir: &Path) -> std::io::Result<()> {
-        let archive_path = archive_path.to_owned();
-        let oidn_dir = oidn_dir.to_owned();
+    pub fn copy_oidn_binaries(bin_dir: &Path) {
+        if !bin_dir.exists() {
+            panic!(
+                "OIDN bin directory missing after extraction: {}",
+                bin_dir.display()
+            );
+        }
 
-        tokio::task::spawn_blocking(move || {
-            let file = std::fs::File::open(archive_path)?;
-            let mut archive = zip::ZipArchive::new(file)?;
-            for i in 0..archive.len() {
-                let mut file = archive.by_index(i)?;
-                let name = PathBuf::from(
-                    file.mangled_name()
-                        .to_str()
-                        .expect("Failed to convert mangled name to string")
-                        .split('\\')
-                        .skip(1)
-                        .collect::<Vec<&str>>()
-                        .join("\\"),
-                );
+        let entries = fs::read_dir(bin_dir).expect("Error reading OIDN bin directory");
 
-                let outpath = Path::new(&oidn_dir).join(name);
-
-                if file.name().ends_with('/') {
-                    std::fs::create_dir_all(&outpath)?;
-                } else {
-                    if let Some(p) = outpath.parent() {
-                        if !p.exists() {
-                            std::fs::create_dir_all(p)?;
-                        }
-                    }
-                    let mut outfile = std::fs::File::create(&outpath)?;
-                    std::io::copy(&mut file, &mut outfile)?;
-                }
-            }
-            Ok(())
-        })
-        .await?
-    }
-
-    pub(crate) async fn extract_tar_gz(
-        archive_path: &Path,
-        oidn_dir: &Path,
-    ) -> std::io::Result<()> {
-        let archive_path = archive_path.to_owned();
-        let oidn_dir = oidn_dir.to_owned();
-        tokio::task::spawn_blocking(move || {
-            let tar_gz = std::fs::File::open(&archive_path)?;
-            let tar = flate2::read::GzDecoder::new(tar_gz);
-            let mut archive = tar::Archive::new(tar);
-            let oidn_path = Path::new(&oidn_dir);
-            let parent_dir = oidn_path.parent().expect("Directory has no parent");
-            archive.unpack(parent_dir)?;
-
-            let binding = archive_path.display().to_string();
-            let extracted_dir = binding.split(".tar.gz").collect::<Vec<&str>>()[0];
-            let extracted_dir = Path::new(&extracted_dir);
-            std::fs::rename(extracted_dir, oidn_path)?;
-
-            Ok(())
-        })
-        .await?
-    }
-
-    pub(crate) async fn copy_oidn_binaries(oidn_bin_path: &Path) {
-        let mut entries = tokio::fs::read_dir(oidn_bin_path)
-            .await
-            .expect("Error finding OIDN binaries");
-        while let Ok(Some(entry)) = entries.next_entry().await {
+        for entry in entries {
+            let entry = entry.expect("Bad fs entry");
             let path = entry.path();
-            let file_name = path.file_name().unwrap().to_str().unwrap();
-            let mut output_path = get_output_path();
-            output_path.push(file_name);
-            tokio::fs::copy(path, output_path)
-                .await
-                .expect("Failed to copy OIDN binary");
+            let file = path.file_name().unwrap();
+
+            let mut out = get_output_path();
+            out.push(file);
+
+            fs::create_dir_all(out.parent().unwrap()).unwrap();
+
+            fs::copy(&path, &out).unwrap_or_else(|_| {
+                panic!("Failed to copy OIDN binary {}", file.to_string_lossy())
+            });
         }
     }
 
-    pub(crate) fn get_output_path() -> PathBuf {
-        let manifest_dir_string = env::var("CARGO_MANIFEST_DIR").unwrap();
-        let build_type = env::var("PROFILE").unwrap();
-        let path = Path::new(&manifest_dir_string)
-            .join("target")
-            .join(build_type);
-        path
+    pub fn get_output_path() -> PathBuf {
+        let manifest = manifest_dir();
+        let profile = env::var("PROFILE").unwrap();
+        manifest.join("target").join(profile)
     }
 }
