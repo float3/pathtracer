@@ -19,7 +19,7 @@ pub struct Quad {
 }
 
 impl Hittable for Quad {
-    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord<'_>> {
         let normal = (self.b - self.a).cross(&(self.c - self.a)).normalize();
         let denom = ray.direction.dot(&normal);
 

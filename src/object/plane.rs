@@ -20,7 +20,7 @@ impl Plane {
 }
 
 impl Hittable for Plane {
-    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord<'_>> {
         let denom = self.normal.dot(&ray.direction);
         if denom.abs() > 1e-6 {
             let v = self.point - ray.origin;

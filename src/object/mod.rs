@@ -37,7 +37,7 @@ impl FromStr for ObjectType {
 }
 
 pub trait Hittable: Sync + std::fmt::Debug {
-    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord<'_>>;
 }
 #[derive(Debug)]
 pub struct HitRecord<'a> {

@@ -29,8 +29,8 @@ jobs:
       - name: render
         run: |
           export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
-          cargo run --release -- --multiplier=4 --all
-          cargo test --release --all-targets --all
+          cargo run --release -F oidn -- --multiplier=4 --all
+          cargo test --release -F oidn --all-targets --all
 
       - name: commit
         run: |

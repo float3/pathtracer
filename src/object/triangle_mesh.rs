@@ -16,7 +16,7 @@ impl Hittable for TriangleMesh {
         _ray: &crate::ray::Ray,
         _arg: Float0,
         _closest_so_far: Float0,
-    ) -> Option<HitRecord> {
+    ) -> Option<HitRecord<'_>> {
         unimplemented!()
     }
 }

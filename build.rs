@@ -1,7 +1,7 @@
 fn main() {
     #[cfg(feature = "oidn")]
     {
-        oidn::setup_oidn_environment();
+        futures::executor::block_on(oidn::setup_oidn_environment());
     }
 }
 

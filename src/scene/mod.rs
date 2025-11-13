@@ -14,7 +14,7 @@ use crate::{
 
 pub type Float0 = f64;
 pub type Int = i64;
-pub const PI: Float0 = 3.0 as Float0;
+pub const PI: Float0 = std::f64::consts::PI as Float0;
 
 cfg_if! {
     if #[cfg(feature="small_rng")] {
@@ -41,7 +41,7 @@ impl Scene {
         illumination
     }
 
-    pub fn hit(&self, ray: &Ray, arg: Float0) -> Option<HitRecord> {
+    pub fn hit(&self, ray: &Ray, arg: Float0) -> Option<HitRecord<'_>> {
         let mut closest_so_far = Float0::INFINITY;
         let mut hit_record = None;
         for object in self.objects.iter() {

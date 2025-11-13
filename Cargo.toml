@@ -6,7 +6,7 @@ edition = "2021"
 [features]
 default = ["oidn", "vector_constgenerics"]
 small_rng = ["rand/small_rng"]
-oidn = ["dep:oidn", "dep:flate2", "dep:tar", "dep:zip"]
+oidn = ["dep:oidn", "dep:flate2", "dep:tar", "dep:zip", "dep:futures"]
 vector_constgenerics = []
 
 [dependencies]
@@ -22,6 +22,7 @@ toml = "0.8.12"
 float-cmp = "0.9.0"
 
 [build-dependencies]
+futures = { version = "0.3.31", optional = true }
 flate2 = { version = "1.0.28", optional = true }
 tar = { version = "0.4.40", optional = true }
 tokio = { version = "1.37.0", features = ["full"], optional = false }
