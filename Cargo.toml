@@ -13,7 +13,7 @@ cfg-if = "1.0.4"
 num-traits = "0.2.19"
 oidn = { git = "https://github.com/Twinklebear/oidn-rs.git", optional = true }
 png = "0.18.0"
-rand = { version = "0.9.2" }
+rand = { version = "0.9.3" }
 rayon = "1.11.0"
 toml = "0.9.8"
 
