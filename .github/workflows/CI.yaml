@@ -3,7 +3,7 @@ name: render
 on:
   push:
     branches:
-      - "**"
+      - master
   workflow_dispatch:
 
 permissions:
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   render:
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: checkout
