@@ -1,7 +1,7 @@
 use crate::material::SamplingFunctions;
 use crate::scene::{Float0, RNGType, Scene};
 use crate::utils::vector::Float3;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use rayon::prelude::*;
 
 pub struct PathTracer {
@@ -119,7 +119,7 @@ pub fn seeded_rng(seed: u64) -> RNGType {
 
 #[cfg(test)]
 mod tests {
-    use rand::Rng;
+    use rand::RngExt;
 
     use super::seeded_rng;
 
