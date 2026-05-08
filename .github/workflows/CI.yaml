@@ -1,3 +1,5 @@
+name: render
+
 on:
   push:
     branches:
@@ -6,11 +8,9 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "render"
+  group: render-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,22 +21,31 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4.1.1
         with:
-          token: ${{ secrets.github_token }}
           submodules: recursive
 
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: extract OIDN
+        run: |
+          rm -rf oidn/oidn
+          tar -xzf oidn/oidn-2.4.1.x86_64.linux.tar.gz -C oidn
+          mv oidn/oidn-2.4.1.x86_64.linux oidn/oidn
 
       - name: render
         run: |
           export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
-          cargo run --release -F oidn -- --multiplier=4 --all
-          cargo test --release -F oidn --all-targets --all
+          cargo run --locked --release -F oidn -- --multiplier=4 --all
+          cargo test --locked --release -F oidn --all-targets --all
 
       - name: commit
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          git pull --autostash
+          git pull --rebase --autostash
           git add renders
-          git commit -m "render"
-          git push
+          if git diff --cached --quiet; then
+            echo "No render changes to commit"
+          else
+            git commit -m "render"
+            git push
+          fi

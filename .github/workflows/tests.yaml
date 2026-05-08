@@ -1,3 +1,5 @@
+name: tests
+
 on:
   push:
     branches:
@@ -5,12 +7,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
-  group: "tests"
+  group: tests-${{ github.ref }}
 
 jobs:
   tests:
@@ -20,12 +20,19 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4.1.1
         with:
-          token: ${{ secrets.github_token }}
           submodules: recursive
 
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: extract OIDN
+        run: |
+          rm -rf oidn/oidn
+          tar -xzf oidn/oidn-2.4.1.x86_64.linux.tar.gz -C oidn
+          mv oidn/oidn-2.4.1.x86_64.linux oidn/oidn
 
       - name: test
         run: |
           export LD_LIBRARY_PATH=./oidn/oidn/lib:$LD_LIBRARY_PATH
-          cargo test --release --all-features --all-targets --all
+          cargo fmt --all --check
+          cargo clippy --locked --all-targets --all-features --workspace -- -D warnings
+          cargo test --locked --release --all-features --all-targets --all

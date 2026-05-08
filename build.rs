@@ -28,9 +28,23 @@ mod oidn {
     pub fn setup_oidn_environment() {
         let oidn_dir = get_oidn_dir();
 
-        // extraction ALWAYS re-runs; good for dev, deterministic
-        extract_oidn(&oidn_dir).expect("Failed to extract OIDN binaries");
+        if !oidn_dir.join("lib").join(library_name()).exists() || !oidn_dir.join("bin").exists() {
+            extract_oidn(&oidn_dir).expect("Failed to extract OIDN binaries");
+        }
         copy_oidn_binaries(&oidn_dir.join("bin"));
+    }
+
+    fn library_name() -> &'static str {
+        let target = env::var("TARGET").expect("TARGET environment variable not set");
+        if target.contains("windows") {
+            "OpenImageDenoise.lib"
+        } else if target.contains("linux") {
+            "libOpenImageDenoise.so"
+        } else if target.contains("darwin") {
+            "libOpenImageDenoise.dylib"
+        } else {
+            panic!("Unsupported target triple for OIDN: {target}");
+        }
     }
 
     pub fn extract_oidn(oidn_dir: &Path) -> io::Result<()> {
@@ -50,7 +64,7 @@ mod oidn {
         match ext {
             Some("zip") => extract_zip(&archive_path, oidn_dir),
             Some("gz") => extract_tar_gz(&archive_path, oidn_dir),
-            _ => panic!("Unknown OIDN archive format: {:?}", ext),
+            _ => panic!("Unknown OIDN archive format: {ext:?}"),
         }
     }
 
