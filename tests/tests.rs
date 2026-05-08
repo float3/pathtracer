@@ -4,21 +4,25 @@ extern crate pathtracer;
 #[test]
 fn sample_test() {
     use std::fs::File;
+    use std::path::Path;
 
     use pathtracer::scene::Float0;
-    use png::{text_metadata::ITXtChunk, BitDepth, ColorType, Encoder};
+    use png::{BitDepth, ColorType, Encoder, text_metadata::ITXtChunk};
 
-    let pathtracer = pathtracer::pathtracer::PathTracer::new(1280, 720, 256);
+    let pathtracer = pathtracer::pathtracer::PathTracer::new_seeded(1280, 720, 256, 0);
     let toml_str = std::fs::read_to_string("tests/sample_test.toml").unwrap();
     let value = toml::from_str::<toml::Value>(&toml_str).unwrap();
 
     let scene = pathtracer::scene::Scene::from_toml(&value);
     let buffer = pathtracer.trace(&scene, true);
 
-    let output_file = "tests/sample_test.png";
+    let output_file = Path::new("target")
+        .join("test-output")
+        .join("sample_test.png");
+    std::fs::create_dir_all(output_file.parent().unwrap()).unwrap();
 
     let mut encoder = Encoder::new(
-        File::create(output_file).unwrap(),
+        File::create(&output_file).unwrap(),
         pathtracer.width as u32,
         pathtracer.height as u32,
     );
@@ -36,8 +40,8 @@ fn sample_test() {
         .collect::<Vec<u8>>();
 
     match writer.write_image_data(modbuffer) {
-        Ok(_) => println!("Image written to {}", output_file),
-        Err(e) => eprintln!("Error writing image: {}", e),
+        Ok(_) => println!("Image written to {}", output_file.display()),
+        Err(e) => eprintln!("Error writing image: {e}"),
     }
 
     let tail = ITXtChunk::new("scene", &toml_str);

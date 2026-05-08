@@ -69,10 +69,6 @@ where
         self.0.iter().all(|&x| x.abs() < s)
     }
 
-    pub(crate) fn magnitude(&self) -> T {
-        self.length()
-    }
-
     pub fn from_toml(toml: &Value) -> Self {
         let elements = toml
             .as_array()

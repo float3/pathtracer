@@ -7,6 +7,3 @@ pub mod ray;
 pub mod scene;
 pub mod skybox;
 pub mod utils;
-
-#[macro_use]
-extern crate cfg_if;

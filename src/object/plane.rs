@@ -1,6 +1,6 @@
 use crate::{material::Material, ray::Ray, scene::Float0, utils::vector::Float3};
 
-use super::{HitRecord, Hittable};
+use super::{HitRecord, Hittable, aabb::Aabb};
 
 #[derive(Debug)]
 pub struct Plane {
@@ -36,6 +36,10 @@ impl Hittable for Plane {
                 });
             }
         }
+        None
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
         None
     }
 }

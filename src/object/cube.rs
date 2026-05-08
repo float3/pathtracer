@@ -1,6 +1,6 @@
 use crate::{material::Material, ray::Ray, scene::Float0, utils::vector::Float3};
 
-use super::{HitRecord, Hittable};
+use super::{HitRecord, Hittable, aabb::Aabb};
 
 #[derive(Debug)]
 pub struct Cube {
@@ -52,5 +52,9 @@ impl Hittable for Cube {
             material: &self.material,
             uv: None,
         })
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        Some(Aabb::new(self.min, self.max))
     }
 }

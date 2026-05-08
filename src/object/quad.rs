@@ -5,7 +5,7 @@ use crate::{
     utils::vector::{Float2, Float3},
 };
 
-use super::{HitRecord, Hittable};
+use super::{HitRecord, Hittable, aabb::Aabb};
 
 #[derive(Debug)]
 pub struct Quad {
@@ -57,5 +57,13 @@ impl Hittable for Quad {
             material: &self.material,
             uv,
         })
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        if self.infinite {
+            None
+        } else {
+            Aabb::from_points(&[self.a, self.b, self.c, self.d])
+        }
     }
 }

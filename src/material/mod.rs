@@ -1,7 +1,7 @@
 use crate::{
     object::HitRecord,
     ray::Ray,
-    scene::{Float0, RNGType, PI},
+    scene::{Float0, PI, RNGType},
     utils::{
         matrix::Float3x3,
         vector::{Float2, Float3},
@@ -97,6 +97,20 @@ fn cosine_weighted_sample_2(normal: &Float3, rand_state: &mut RNGType) -> (Float
 }
 
 impl Material {
+    pub fn sample_pdf(
+        normal: &Float3,
+        direction: &Float3,
+        sampletype: &SamplingFunctions,
+    ) -> Float0 {
+        let cos_theta = normal.dot(&direction.normalize()).max(0.0);
+        match sampletype {
+            SamplingFunctions::RandomUnitVector => 1.0 / (4.0 * PI),
+            SamplingFunctions::CosineWeightedSample1 | SamplingFunctions::CosineWeightedSample2 => {
+                cos_theta / PI
+            }
+        }
+    }
+
     pub fn scatter(
         &self,
         hit_record: &HitRecord,
@@ -208,8 +222,11 @@ impl Material {
         }
     }
 
-    pub(crate) fn from_toml(object: &toml::Value) -> Material {
-        match object.as_str().unwrap() {
+    pub(crate) fn try_from_toml(object: &toml::Value) -> Result<Material, String> {
+        let material = object
+            .as_str()
+            .ok_or_else(|| format!("material must be a string, got {object:?}"))?;
+        let material = match material {
             "reflective" => Material::reflective(),
             "red" => Material::red(),
             "green" => Material::green(),
@@ -217,8 +234,9 @@ impl Material {
             "white" => Material::white(),
             "checkered" => Material::checkered(),
             "black" => Material::black(),
-            _ => todo!(),
-        }
+            _ => return Err(format!("unknown material `{material}`")),
+        };
+        Ok(material)
     }
 
     pub fn from_color(color: crate::utils::vector::Float3) -> Material {
@@ -268,8 +286,7 @@ mod tests {
 
         assert!(
             (average_cosine - expected_average_cosine).abs() < 0.05,
-            "Average cosine: {}",
-            average_cosine
+            "Average cosine: {average_cosine}"
         );
     }
 
@@ -287,8 +304,7 @@ mod tests {
 
         assert!(
             (average_cosine - expected_average_cosine).abs() < 0.05,
-            "Average cosine: {}",
-            average_cosine
+            "Average cosine: {average_cosine}"
         );
     }
 }

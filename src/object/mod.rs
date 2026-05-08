@@ -7,6 +7,8 @@ use crate::{
     utils::vector::{Float2, Float3},
 };
 
+pub mod aabb;
+pub mod bvh;
 pub mod cube;
 pub mod plane;
 pub mod quad;
@@ -31,13 +33,15 @@ impl FromStr for ObjectType {
             "quad" => Ok(Self::Quad),
             "plane" => Ok(Self::Plane),
             "cube" => Ok(Self::Cube),
-            _ => panic!("Unknown object type: {}", s),
+            "mesh" | "triangle_mesh" => Ok(Self::TriangleMesh),
+            _ => Err(()),
         }
     }
 }
 
 pub trait Hittable: Sync + std::fmt::Debug {
     fn hit(&self, ray: &Ray, t_min: Float0, t_max: Float0) -> Option<HitRecord<'_>>;
+    fn bounding_box(&self) -> Option<aabb::Aabb>;
 }
 #[derive(Debug)]
 pub struct HitRecord<'a> {

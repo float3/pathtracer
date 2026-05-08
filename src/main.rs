@@ -4,7 +4,7 @@ use pathtracer::{
     utils::vector::Vector,
 };
 
-use png::{text_metadata::ITXtChunk, BitDepth, ColorType, Encoder};
+use png::{BitDepth, ColorType, Encoder, text_metadata::ITXtChunk};
 use toml::Value;
 
 use std::fs::{self, File};
@@ -51,7 +51,8 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
     let toml_str: String = fs::read_to_string(scene_file).expect("Failed to read scene.toml");
     let value: Value = toml::from_str::<Value>(&toml_str).expect("Failed to parse TOML file");
     let buffer: Vec<Vector<f64, 3>> = {
-        let scene = Scene::from_toml(&value);
+        let scene = Scene::try_from_toml(&value)
+            .unwrap_or_else(|err| panic!("Failed to parse scene `{scene_file}`: {err}"));
         pathtracer.trace(&scene, false)
     };
 
@@ -74,8 +75,8 @@ fn trace_scene_file(scene_file: &str, output_file: &str, pathtracer: &PathTracer
         .collect::<Vec<u8>>();
 
     match writer.write_image_data(modbuffer) {
-        Ok(_) => println!("Image written to {}", output_file),
-        Err(e) => eprintln!("Error writing image: {}", e),
+        Ok(_) => println!("Image written to {output_file}"),
+        Err(e) => eprintln!("Error writing image: {e}"),
     }
 
     let tail = ITXtChunk::new("scene", &toml_str);
@@ -87,14 +88,14 @@ fn trace_all_scenes(pathtracer: &PathTracer) {
 
     let entries = match fs::read_dir(scenes_dir) {
         Ok(entries) => entries,
-        Err(err) => panic!("Failed to read directory: {}", err),
+        Err(err) => panic!("Failed to read directory: {err}"),
     };
 
     for entry in entries {
         let entry = match entry {
             Ok(entry) => entry,
             Err(err) => {
-                eprintln!("Failed to access directory entry: {}", err);
+                eprintln!("Failed to access directory entry: {err}");
                 continue;
             }
         };
@@ -107,7 +108,7 @@ fn trace_all_scenes(pathtracer: &PathTracer) {
             let scene_file = match path.to_str() {
                 Some(path_str) => path_str,
                 None => {
-                    eprintln!("Invalid UTF-8 in file path: {:?}", path);
+                    eprintln!("Invalid UTF-8 in file path: {path:?}");
                     continue;
                 }
             };

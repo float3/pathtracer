@@ -1,6 +1,9 @@
-use crate::{scene::Float0, utils::vector::Float3};
+use crate::{
+    scene::{Float0, RNGType},
+    utils::vector::Float3,
+};
 
-use super::Light;
+use super::{Light, LightSample};
 #[derive(Debug, Clone, Copy)]
 pub struct PointLight {
     position: Float3,
@@ -20,6 +23,18 @@ impl Light for PointLight {
 
     fn position(&self) -> Float3 {
         self.position
+    }
+
+    fn sample(&self, point: Float3, _rand_state: &mut RNGType) -> LightSample {
+        let to_light = self.position - point;
+        let distance = to_light.length();
+        LightSample {
+            direction: to_light.normalize(),
+            distance,
+            radiance: self.color.scale(1.0 / (distance * distance)),
+            pdf: 1.0,
+            delta: true,
+        }
     }
 
     fn intensity(&self) -> Float0 {

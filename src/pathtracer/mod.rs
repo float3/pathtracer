@@ -1,20 +1,31 @@
 use crate::material::SamplingFunctions;
 use crate::scene::{Float0, RNGType, Scene};
 use crate::utils::vector::Float3;
+use rand::{Rng, SeedableRng};
 use rayon::prelude::*;
 
 pub struct PathTracer {
     pub width: usize,
     pub height: usize,
     samples: usize,
+    seed: Option<u64>,
 }
 
 impl PathTracer {
     pub fn new(width: usize, height: usize, samples: usize) -> Self {
+        Self::with_seed(width, height, samples, None)
+    }
+
+    pub fn new_seeded(width: usize, height: usize, samples: usize, seed: u64) -> Self {
+        Self::with_seed(width, height, samples, Some(seed))
+    }
+
+    fn with_seed(width: usize, height: usize, samples: usize, seed: Option<u64>) -> Self {
         Self {
             width,
             height,
             samples,
+            seed,
         }
     }
 
@@ -25,7 +36,7 @@ impl PathTracer {
             .par_iter_mut()
             .enumerate()
             .for_each(|(index, pixel)| {
-                let mut rand_state = get_rng();
+                let mut rand_state = self.rng_for_pixel(index);
 
                 let x = index % self.width;
                 let y = index / self.width;
@@ -62,6 +73,13 @@ impl PathTracer {
 
         buffer
     }
+
+    fn rng_for_pixel(&self, index: usize) -> RNGType {
+        match self.seed {
+            Some(seed) => seeded_rng(seed ^ (index as u64).wrapping_mul(0x9e37_79b9_7f4a_7c15)),
+            None => get_rng(),
+        }
+    }
 }
 
 #[cfg(feature = "oidn")]
@@ -74,7 +92,7 @@ fn denoise_image(width: usize, height: usize, buffer: &mut [Float3]) {
 
     let input: &mut [f32] = binding.as_mut_slice();
 
-    let device = oidn::Device::new();
+    let device = oidn::Device::cpu();
     oidn::RayTracing::new(&device)
         .hdr(true)
         .srgb(false)
@@ -91,5 +109,26 @@ fn denoise_image(width: usize, height: usize, buffer: &mut [Float3]) {
 }
 
 pub fn get_rng() -> RNGType {
-    return rand::rng();
+    let mut rng = rand::rng();
+    seeded_rng(rng.random())
+}
+
+pub fn seeded_rng(seed: u64) -> RNGType {
+    rand::rngs::StdRng::seed_from_u64(seed)
+}
+
+#[cfg(test)]
+mod tests {
+    use rand::Rng;
+
+    use super::seeded_rng;
+
+    #[test]
+    fn seeded_rng_repeats() {
+        let mut a = seeded_rng(42);
+        let mut b = seeded_rng(42);
+
+        assert_eq!(a.random::<u64>(), b.random::<u64>());
+        assert_eq!(a.random::<u64>(), b.random::<u64>());
+    }
 }

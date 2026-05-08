@@ -1,6 +1,6 @@
 use crate::{material::Material, ray::Ray, scene::Float0, utils::vector::Float3};
 
-use super::{HitRecord, Hittable};
+use super::{HitRecord, Hittable, aabb::Aabb};
 
 #[derive(Debug)]
 pub struct Sphere {
@@ -56,5 +56,10 @@ impl Hittable for Sphere {
             material: &self.material,
             uv: None,
         })
+    }
+
+    fn bounding_box(&self) -> Option<Aabb> {
+        let radius = Float3::new([self.radius, self.radius, self.radius]);
+        Some(Aabb::new(self.center - radius, self.center + radius))
     }
 }
