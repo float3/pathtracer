@@ -2,6 +2,8 @@
 name = "pathtracer"
 version = "0.1.0"
 edition = "2024"
+license = "AGPL-3.0-only"
+repository = "https://github.com/float3/pathtracer"
 
 [features]
 default = ["oidn", "vector_constgenerics"]
@@ -22,7 +24,7 @@ float-cmp = "0.10.0"
 
 [build-dependencies]
 flate2 = { version = "1.1.9", optional = true }
-tar = { version = "0.4.45", optional = true }
+tar = { version = "0.4.46", optional = true }
 zip = { version = "8.6.0", features = [], optional = true }
 
 [profile.release]

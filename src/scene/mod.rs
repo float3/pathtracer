@@ -407,7 +407,9 @@ fn indices_field(value: &Value, key: &str, path: &str) -> Result<Vec<[usize; 3]>
             ));
         }
         values
-            .chunks_exact(3)
+            .as_chunks::<3>()
+            .0
+            .iter()
             .enumerate()
             .map(|(triangle_index, chunk)| {
                 Ok([
