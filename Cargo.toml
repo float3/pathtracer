@@ -6,9 +6,8 @@ license = "AGPL-3.0-only"
 repository = "https://github.com/float3/pathtracer"
 
 [features]
-default = ["oidn", "vector_constgenerics"]
+default = ["oidn"]
 oidn = ["dep:oidn", "dep:flate2", "dep:tar", "dep:zip"]
-vector_constgenerics = []
 
 [dependencies]
 cfg-if = "1.0.4"
