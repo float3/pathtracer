@@ -1,2 +1,4 @@
 /target
 rustup.sh
+/result
+/result-*
