@@ -1,11 +1,11 @@
-![Scene](./renders/scene.png)
-![Checkered Floor](./renders/checkered_floor.png)
-![Mirror Ball](./renders/mirror_ball.png)
+![scene](./renders/scene.png)
+![checkered floor](./renders/checkered_floor.png)
+![mirror ball](./renders/mirror_ball.png)
 ![Cornell Box](./renders/cornell_box.png)
-![Red Ball](./renders/red_ball.png)
+![red ball](./renders/red_ball.png)
 
 # this pathtracer has the following interesting features:
-- [x] Importance Sampling
+- [x] importance sampling
 
 # usage
 ```bash
