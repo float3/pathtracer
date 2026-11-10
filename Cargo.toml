@@ -24,7 +24,7 @@ float-cmp = "0.10.0"
 [build-dependencies]
 flate2 = { version = "1.1.9", optional = true }
 tar = { version = "0.4.46", optional = true }
-zip = { version = "8.6.0", features = [], optional = true }
+zip = { version = "9.0.5", features = [], optional = true }
 
 [profile.release]
 codegen-units = 1
