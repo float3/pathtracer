@@ -472,9 +472,10 @@ dependencies = [
 
 [[package]]
 name = "oidn"
-version = "2.4.1"
-source = "git+https://github.com/float3/oidn-rs.git#6810270b423f2ffdcea3725df2d4d1987d0a557e"
+version = "2.5.1"
+source = "git+https://github.com/Twinklebear/oidn-rs.git#544f3348096960580ea280980376a6e6e409c84a"
 dependencies = [
+ "bitflags",
  "num_enum",
  "pkg-config",
 ]
