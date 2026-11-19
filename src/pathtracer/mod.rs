@@ -92,8 +92,9 @@ fn denoise_image(width: usize, height: usize, buffer: &mut [Float3]) {
 
     let input: &mut [f32] = binding.as_mut_slice();
 
-    let device = oidn::Device::cpu();
-    oidn::RayTracing::new(&device)
+    let device = oidn::Device::cpu().expect("OIDN device error!");
+    oidn::RayTracing::try_new(&device)
+        .expect("Filter creation error!")
         .hdr(true)
         .srgb(false)
         .image_dimensions(width, height)
