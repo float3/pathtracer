@@ -97,14 +97,14 @@ mod oidn {
 
         for i in 0..archive.len() {
             let mut file = archive.by_index(i)?;
-            let name = file.mangled_name();
+            let name = file.mangled_name()?;
             let name = name.to_string_lossy();
 
             let relative = name.split('\\').skip(1).collect::<Vec<_>>().join("/");
 
             let outpath = oidn_dir.join(relative);
 
-            if file.name().ends_with('/') {
+            if file.is_dir() {
                 fs::create_dir_all(&outpath)?;
             } else {
                 if let Some(parent) = outpath.parent() {
